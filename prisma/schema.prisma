@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model with OAuth support
+model User {
+  id              String        @id @default(uuid())
+  email           String        @unique
+  password        String?       // Nullable for OAuth users
+  oauthProvider   String?       // e.g., "google", "github"
+  oauthId         String?       // OAuth identifier
+  name            String?       
+  bio             String?       @default("")
+  profilePicture  String?       @default("")
+  role            Role          @default(STUDENT)
+  joinedDate      DateTime      @default(now())
+  documents       Document[]
+  comments        Comment[]
+  ratings         Rating[]
+  notifications   Notification[]
+  downloads       Download[]    
+  logs            Log[]         // Admin moderation logs
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+model Document {
+  id            String      @id @default(uuid())
+  title         String
+  course        String
+  fileUrl       String
+  fileType      String      // Application logic enforces "PDF", "DOCX", "TXT"
+  tags          String[]    @default([])
+  uploadDate    DateTime    @default(now())
+  authorId      String
+  author        User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  metadata      Json?       // e.g., {"pageCount": 12, "summary": "..."}
+  comments      Comment[]
+  ratings       Rating[]
+  downloads     Download[]
+  notifications Notification[]
+  logs          Log[]       // Logs related to this document
+  viewCount     Int         @default(0)
+  downloadCount Int         @default(0)
+}
+
+model Comment {
+  id            String      @id @default(uuid())
+  content       String
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentId    String
+  document      Document    @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  logs          Log[]       // Logs for moderation actions
+}
+
+model Rating {
+  id            String      @id @default(uuid())
+  value         Int         @default(0) // 1-5 stars
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentId    String
+  document      Document    @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+}
+
+model Notification {
+  id            String      @id @default(uuid())
+  userId        String      
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message       String      
+  isRead        Boolean     @default(false)
+  timestamp     DateTime    @default(now())
+  relatedDocId  String?     
+  relatedDoc    Document?   @relation(fields: [relatedDocId], references: [id], onDelete: SetNull)
+}
+
+model Download {
+  id            String      @id @default(uuid())
+  userId        String      
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentId    String      
+  document      Document    @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  downloadedAt  DateTime    @default(now())
+}
+
+// log model for system administration
+model Log {
+  id            String    @id @default(uuid())
+  action        String    // e.g., "UPLOAD", "DELETE", "BAN"
+  userId        String?
+  user          User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  documentId    String?
+  document      Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  commentId     String?
+  comment       Comment?  @relation(fields: [commentId], references: [id], onDelete: SetNull)
+  timestamp     DateTime  @default(now())
+  details       Json?     // Additional info (e.g., {"reason": "inappropriate content"})
+}

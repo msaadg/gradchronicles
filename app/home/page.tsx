@@ -1,9 +1,16 @@
-const AuthPage = () => {
+import Footer from "../components/Footer";
+import Navbar from "../components/Navbar";
+
+const Home = () => {
   return (
-    <div className="text-4xl flex h-screen justify-center items-center">
-      Welcome to Home Page!
-    </div>
+    <>
+      <Navbar isLoggedIn={true} />
+      <div className="text-4xl flex h-screen justify-center items-center">
+        Welcome to Home Page!
+      </div>
+      <Footer />
+    </>
   )
 }
 
-export default AuthPage;
+export default Home;

@@ -33,7 +33,7 @@ const Navbar = ({ isLoggedIn = false }: NavbarProps) => {
             ) : (
               <>
                 <NavLink href="/" active={pathname === "/"}>Home</NavLink>
-                <NavLink href="/features" active={pathname === "/features"}>Features</NavLink>
+                <NavLink href="/" active={pathname === "/#"}>Features</NavLink>
               </>
             )}
           </div>
@@ -49,41 +49,29 @@ const Navbar = ({ isLoggedIn = false }: NavbarProps) => {
               
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 animate-scale-in">
-                  <Link href="/profile">
-                    <a className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white">
-                      My Profile
-                    </a>
+                  <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white">
+                    My Profile 
                   </Link>
-                  <Link href="/manage-documents">
-                    <a className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white">
-                      Manage Documents
-                    </a>
+                  <Link href="/manage-documents" className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white">
+                    Manage Documents
                   </Link>
-                  <Link href="/notifications">
-                    <a className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white">
-                      Notifications <span className="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full ml-2">3</span>
-                    </a>
+                  <Link href="/notifications" className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white">
+                    Notifications <span className="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full ml-2">3</span>
                   </Link>
                   <div className="border-t border-gray-100 my-1"></div>
-                  <Link href="/logout">
-                    <a className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white">
-                      Logout
-                    </a>
+                  <Link href="/logout" className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white">
+                    Logout
                   </Link>
                 </div>
               )}
             </div>
           ) : (
             <div className="flex items-center space-x-3">
-              <Link href="/login">
-                <a className="text-brand-purple font-medium px-4 py-2 rounded-full hover:bg-brand-purple/5 transition-colors">
-                  Login
-                </a>
+              <Link href="/login" className="text-brand-purple font-medium px-4 py-2 rounded-full hover:bg-brand-purple/5 transition-colors">
+                Login
               </Link>
-              <Link href="/signup">
-                <a className="bg-brand-purple text-white font-medium px-4 py-2 rounded-full hover:bg-brand-purple-dark transition-colors">
-                  Sign Up
-                </a>
+              <Link href="/signup" className="bg-brand-purple text-white font-medium px-4 py-2 rounded-full hover:bg-brand-purple-dark transition-colors">
+                Sign Up
               </Link>
             </div>
           )}

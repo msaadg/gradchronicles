@@ -1,35 +1,93 @@
 'use client';
 import { useRef, useState } from 'react';
-import { Upload as UploadIcon, CloudUpload,FileUp, X } from 'lucide-react'; 
+import { FileUp, X } from 'lucide-react';
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
+import { toast } from 'sonner';
 
 const Upload = () => {
-  const [isUploaded, setIsUploaded] = useState(true);
+  const [isUploaded, setIsUploaded] = useState(false);
   const [documentType, setDocumentType] = useState<string | null>(null);
   const [uploadComplete, setUploadComplete] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement | null>(null); // this added for adding functionality upon clicking the 'browse files' button
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [course, setCourse] = useState('');
+  const [tags, setTags] = useState('');
+  const [description, setDescription] = useState('');
   
   const handleDocumentTypeChange = (type: string) => {
     setDocumentType(type);
   };
 
-  const handleUpload = () => {
-    // In a real app, this would handle the form submission
-    // For demo, we'll simulate a progress bar
-    setUploadProgress(0);
-    const interval = setInterval(() => {
-      setUploadProgress(prev => {
-        const newProgress = prev + 10;
-        if (newProgress >= 100) {
-          clearInterval(interval);
-          setUploadComplete(true);
-          return 100;
-        }
-        return newProgress;
-      });
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setIsUploaded(true);
+      setUploadComplete(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!fileInputRef.current?.files?.length) {
+      toast.error('Please select a file to upload.');
+      return;
+    }
+
+    const file = fileInputRef.current.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('course', course);
+    formData.append('tags', tags);
+    formData.append('description', description);
+
+    // Start the simulated progress at 1%
+    setUploadProgress(1);
+
+    // Start a timer that gradually increases progress to a maximum (e.g., 95%)
+    const simulationInterval = setInterval(() => {
+      setUploadProgress((prev) => (prev < 95 ? prev + 1 : prev));
     }, 300);
+
+    try {
+      const response = await fetch('/api/documents/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      clearInterval(simulationInterval);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Upload failed');
+      }
+      // On successful response, update progress to 100%
+      setUploadProgress(100);
+      setTimeout(() => {
+        setUploadComplete(true);
+        setIsUploaded(false);
+        setSelectedFile(null);
+        setCourse('');
+        setTags('');
+        setDescription('');
+        setDocumentType(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }, 500);
+    } catch (error: unknown) {
+      clearInterval(simulationInterval);
+      console.error('Upload error:', error);
+      toast.error(error instanceof Error ? error.message : 'Upload failed');
+      setUploadProgress(0);
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    setIsUploaded(false);
+    setUploadProgress(0);
+    setUploadComplete(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -41,67 +99,69 @@ const Upload = () => {
           <h1 className="text-3xl font-bold mb-8 text-center">Upload Your Study Materials</h1>
           
           <div className="max-w-3xl mx-auto">
-            {/* {Enclosing the upload box and file preview inside the white box */}
+            {/* Upload Box & File Preview */}
             <div className="bg-white rounded-xl shadow-sm p-8 mb-8 transform translate-y-1">
-            {/* Dashed Upload Box with instructions */}
-            <div className="bg-[#fbf8f8] border-2 border-dashed border-[#6a0dad] rounded-xl p-6 text-center">
-              <div className="mb-4 flex justify-center">
-                <div className="w-16 h-16 bg-[#f3e8ff] rounded-full flex items-center justify-center">
-                  <FileUp className="h-8 w-8 text-[#6a0dad]" />
+              <div className="bg-[#fbf8f8] border-2 border-dashed border-[#6a0dad] rounded-xl p-6 text-center">
+                <div className="mb-4 flex justify-center">
+                  <div className="w-16 h-16 bg-[#f3e8ff] rounded-full flex items-center justify-center">
+                    <FileUp className="h-8 w-8 text-[#6a0dad]" />
+                  </div>
                 </div>
+                <h3 className="text-medium font-semibold mb-2">
+                  Drag and drop your files here or click to upload
+                </h3>
+                <p className="text-xs text-[#6a0dad] mb-4">
+                  Supported file formats: PDF, DOCX, TXT<br />
+                  Max 100MB per file
+                </p>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="bg-[#6a0dad] text-white w-40 h-10 rounded-full font-medium hover:bg-[#5a0cc0] transition-colors"
+                >
+                  Browse Files
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.docx,.txt"
+                  style={{ display: 'none' }}
+                  onChange={handleFileChange}
+                />
               </div>
-              <h3 className="text-medium font-semibold mb-2">
-                Drag and drop your files here or click to upload
-              </h3>
-              <p className="text-xs text-[#6a0dad] mb-4">
-                Supported file formats: PDF, DOCX, TXT<br />
-                Max 100MB per file
-              </p>
-              <button
-              onClick={() => fileInputRef.current?.click()}
-              className="bg-[#6a0dad] text-white w-40 h-10 rounded-full font-medium hover:bg-[#5a0cc0] transition-colors"
-              >
-                Browse Files
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.docx,.txt"
-                style={{ display: 'none' }}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    console.log("Selected file:", file.name);
-                    setIsUploaded(true); // You can trigger a preview, upload, etc.
-                  }
-                }}
-              />
 
+              {isUploaded && selectedFile && (
+                <div className="mt-6 flex items-center justify-between bg-[#e8ccf4] rounded-xl p-4 shadow-sm">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 border border-[#6a0dad] rounded-full flex items-center justify-center text-[#6a0dad] font-semibold text-xs mr-4">
+                      File
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-800">
+                        {selectedFile.name}
+                      </p>
+                      <p className="text-xs text-[#6a0dad]">
+                        {(selectedFile.size / 1024 / 1024).toFixed(1)} MB
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 text-sm">
+                    <button
+                      className="border px-5 py-2 rounded-full font-medium hover:bg-[#f3e8ff] transition-colors"
+                      style={{ borderColor: '#6a0dad', color: '#6a0dad' }}
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={handleRemoveFile}
+                      className="border px-5 py-2 rounded-full font-medium hover:bg-[#f3e8ff] transition-colors"
+                      style={{ borderColor: '#6a0dad', color: 'red' }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-
-            {/* Uploaded Files Preview — Outside the Box */}
-            {isUploaded && (
-              <div className="mt-6 flex items-center justify-between bg-[#e8ccf4] rounded-xl p-4 shadow-sm">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 border border-[#6a0dad] rounded-full flex items-center justify-center text-[#6a0dad] font-semibold text-xs mr-4">
-                    File
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">
-                      Introduction_to_Programming.pdf
-                    </p>
-                    <p className="text-xs text-[#6a0dad]">2.5 MB</p>
-                  </div>
-                </div>
-                <div className="flex gap-4 text-sm">
-                  <button className="border px-5 py-2 rounded-full font-medium hover:bg-[#f3e8ff] transition-colors" 
-                    style={{ borderColor: '#6a0dad', color: '#6a0dad' }}>View</button>
-                  <button className="border px-5 py-2 rounded-full font-medium hover:bg-[#f3e8ff] transition-colors" 
-                    style={{ borderColor: '#6a0dad', color: 'red' }}>Remove</button>
-                </div>
-              </div>
-            )}
-          </div>
             
             {/* Document Metadata Form */}
             <div className="bg-white rounded-xl shadow-sm p-8 mb-8 transform translate-y-6">
@@ -112,7 +172,9 @@ const Upload = () => {
                 <input
                   type="text"
                   placeholder="Select or type a course name"
-                  className="form-input"
+                  value={course}
+                  onChange={(e) => setCourse(e.target.value)}
+                  className="form-input w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple/50"
                 />
               </div>
               
@@ -166,7 +228,9 @@ const Upload = () => {
                 <input
                   type="text"
                   placeholder="Add tags to help others find your document"
-                  className="form-input"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  className="form-input w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple/50"
                 />
               </div>
               
@@ -176,20 +240,24 @@ const Upload = () => {
                 </label>
                 <textarea
                   placeholder="Add a description (e.g., 'Covers chapters 1-5')"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple/50 min-h-[100px]"
                 ></textarea>
               </div>
               
               <div className="flex justify-end space-x-3">
-                <button className="border px-6 py-2.5 rounded-full font-medium hover:bg-[#f3e8ff] transition-colors" 
-                style={{ borderColor: '#6a0dad', color: '#6a0dad' }}
+                <button
+                  className="border px-6 py-2.5 rounded-full font-medium hover:bg-[#f3e8ff] transition-colors"
+                  style={{ borderColor: '#6a0dad', color: '#6a0dad' }}
                 >
-                Save as Draft
+                  Save as Draft
                 </button>
 
                 <button 
                   onClick={handleUpload}
                   className="bg-brand-purple text-white px-6 py-2.5 rounded-full font-medium hover:bg-brand-purple-dark transition-colors"
+                  disabled={uploadProgress > 0 && !uploadComplete}
                 >
                   Upload
                 </button>
@@ -225,11 +293,14 @@ const Upload = () => {
                       <button className="border border-gray-200 text-gray-700 px-6 py-2.5 rounded-full font-medium hover:bg-gray-50 transition-colors">
                         View Document
                       </button>
-                      <button 
+                      <button
                         onClick={() => {
                           setIsUploaded(false);
                           setUploadComplete(false);
                           setUploadProgress(0);
+                          setSelectedFile(null);
+                          if (fileInputRef.current) fileInputRef.current.value = '';
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
                         }}
                         className="bg-brand-purple text-white px-6 py-2.5 rounded-full font-medium hover:bg-brand-purple-dark transition-colors"
                       >

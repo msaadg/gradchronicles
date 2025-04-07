@@ -40,12 +40,14 @@ const Navbar = ({ isLoggedIn = false }: NavbarProps) => {
           
           {isLoggedIn ? (
             <div className="relative">
-              <button 
-                onClick={toggleDropdown}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
-              >
-                <User className="h-6 w-6" />
-              </button>
+              <div className='w-56 flex justify-end'> 
+                <button 
+                  onClick={toggleDropdown}
+                  className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                >
+                  <User className="h-6 w-6" />
+                </button>
+              </div>
               
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 animate-scale-in">

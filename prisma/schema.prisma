@@ -33,29 +33,48 @@ model User {
   logs            Log[]         // Admin moderation logs
 }
 
+model Course {
+  id          Int      @id @default(autoincrement())
+  name        String      @unique
+  description String?
+  createdAt   DateTime    @default(now())
+  slug String @unique
+  documents   Document[]
+}
+
 enum Role {
   STUDENT
   ADMIN
 }
 
+enum DocType {
+  EXAM
+  ASSIGNMENT
+  NOTES
+  OTHER_RESOURCES
+}
+
 model Document {
-  id            String      @id @default(uuid())
-  title         String
-  course        String
-  fileUrl       String
-  fileType      String      // Application logic enforces "PDF", "DOCX", "TXT"
-  tags          String[]    @default([])
-  uploadDate    DateTime    @default(now())
-  authorId      String
-  author        User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  metadata      Json?       // e.g., {"pageCount": 12, "summary": "..."}
-  comments      Comment[]
-  ratings       Rating[]
-  downloads     Download[]
-  notifications Notification[]
-  logs          Log[]       // Logs related to this document
-  viewCount     Int         @default(0)
-  downloadCount Int         @default(0)
+  id                String          @id @default(uuid())
+  title             String
+  courseId          Int
+  course            Course          @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  docType           DocType
+  originalFileName  String
+  fileUrl           String
+  fileType          String          // Application logic enforces "PDF", "DOCX", "TXT"
+  tags              String[]        @default([])
+  uploadDate        DateTime        @default(now())
+  authorId          String
+  author            User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  metadata          Json?           // e.g., {"pageCount": 12, "summary": "..."}
+  comments          Comment[]
+  ratings           Rating[]
+  downloads         Download[]
+  notifications     Notification[]
+  logs              Log[]           // Logs related to this document
+  viewCount         Int             @default(0)
+  downloadCount     Int             @default(0)
 }
 
 model Comment {

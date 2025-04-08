@@ -5,19 +5,44 @@ const prisma = new PrismaClient().$extends(withAccelerate())
 
 export async function createDocument(data: {
   title: string;
-  course: string;
+  courseId: string;
+  docType: 'EXAM' | 'NOTES' | 'ASSIGNMENT' | 'OTHER_RESOURCES';
+  fileName: string;
   fileUrl: string;
   fileType: string;
   tags: string[];
   authorId: string;
   metadata?: Record<string, any>;
 }) {
-  return prisma.document.create({ data });
+  return prisma.document.create({
+    data: {
+      title: data.title,
+      courseId: parseInt(data.courseId),
+      docType: data.docType,
+      fileUrl: data.fileUrl,
+      originalFileName: data.fileName,
+      fileType: data.fileType,
+      tags: data.tags,
+      authorId: data.authorId,
+      metadata: data.metadata,
+    },
+  });
 }
 
-export async function findDocumentByTitleAndAuthor(title: string, authorId: string, course: string) {
+export async function findExistingDocument(fileName: string, authorId: string, courseId: string) {
   return prisma.document.findFirst({
-    where: { title, authorId, course },
+    where: {
+      originalFileName: fileName,
+      authorId,
+      courseId: parseInt(courseId),
+    },
+  });
+}
+
+export async function getAllCourses() {
+  return prisma.course.findMany({
+    select: { id: true, name: true },
+    orderBy: { name: 'asc' },
   });
 }
 

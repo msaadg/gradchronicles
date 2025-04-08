@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FileUp, X } from 'lucide-react';
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
@@ -7,13 +7,15 @@ import { toast } from 'sonner';
 
 const Upload = () => {
   const [isUploaded, setIsUploaded] = useState(false);
-  const [documentType, setDocumentType] = useState<string | null>(null);
+  const [documentType, setDocumentType] = useState("");
   const [uploadComplete, setUploadComplete] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [course, setCourse] = useState('');
+  const [title, setTitle] = useState('');
+  const [availableCourses, setAvailableCourses] = useState<{ id: string; name: string }[]>([]);
+  const [courseId, setCourseId] = useState('');
   const [tags, setTags] = useState('');
   const [description, setDescription] = useState('');
   
@@ -24,6 +26,10 @@ const Upload = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 100 * 1024 * 1024) { // 100MB in bytes
+        toast.error('File exceeds 100MB limit. Please select a smaller file.');
+        return;
+      }
       setSelectedFile(file);
       setIsUploaded(true);
       setUploadComplete(false);
@@ -37,10 +43,17 @@ const Upload = () => {
       return;
     }
 
+    if (!title.trim() || !courseId || !documentType) {
+      toast.warning('Please fill in all required fields.');
+      return;
+    }    
+
     const file = fileInputRef.current.files[0];
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('course', course);
+    formData.append('title', title);
+    formData.append('courseId', courseId);
+    formData.append('docType', documentType.toUpperCase());
     formData.append('tags', tags);
     formData.append('description', description);
 
@@ -68,10 +81,11 @@ const Upload = () => {
         setUploadComplete(true);
         setIsUploaded(false);
         setSelectedFile(null);
-        setCourse('');
+        setTitle('');
+        setCourseId('');
         setTags('');
         setDescription('');
-        setDocumentType(null);
+        setDocumentType('');
         if (fileInputRef.current) fileInputRef.current.value = '';
       }, 500);
     } catch (error: unknown) {
@@ -79,6 +93,8 @@ const Upload = () => {
       console.error('Upload error:', error);
       toast.error(error instanceof Error ? error.message : 'Upload failed');
       setUploadProgress(0);
+    } finally {
+      clearInterval(simulationInterval);
     }
   };
 
@@ -87,8 +103,38 @@ const Upload = () => {
     setIsUploaded(false);
     setUploadProgress(0);
     setUploadComplete(false);
+    setTitle('');
+    setCourseId('');
+    setTags('');
+    setDescription('');
+    setDocumentType('');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
+
+  const handleViewFile = () => {
+    if (selectedFile) {
+      const fileURL = URL.createObjectURL(selectedFile);
+      window.open(fileURL, '_blank');
+    }
+  };
+
+  const handleViewFileInternal = () => {
+    // TODO
+  }
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const res = await fetch('/api/courses');
+        const data = await res.json();
+        setAvailableCourses(data.courses);
+      } catch (err) {
+        console.error('Failed to fetch courses', err);
+        toast.error('Failed to load courses.');
+      }
+    };
+    fetchCourses();
+  }, []);  
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -146,6 +192,7 @@ const Upload = () => {
                   </div>
                   <div className="flex gap-4 text-sm">
                     <button
+                      onClick={handleViewFile}
                       className="border px-5 py-2 rounded-full font-medium hover:bg-[#f3e8ff] transition-colors"
                       style={{ borderColor: '#6a0dad', color: '#6a0dad' }}
                     >
@@ -167,15 +214,33 @@ const Upload = () => {
             <div className="bg-white rounded-xl shadow-sm p-8 mb-8 transform translate-y-6">
               <div className="mb-6">
                 <label className="block text-gray-700 font-medium mb-2">
-                  Course Name<span className="text-red-500">*</span>
+                  Title<span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  placeholder="Select or type a course name"
-                  value={course}
-                  onChange={(e) => setCourse(e.target.value)}
+                  placeholder="Enter the title of your document"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                   className="form-input w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple/50"
                 />
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-gray-700 font-medium mb-2">
+                  Course<span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={courseId}
+                  onChange={(e) => setCourseId(e.target.value)}
+                  className="form-input w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple/50"
+                >
+                  <option value="">Select a course</option>
+                  {availableCourses?.map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               
               <div className="mb-6">
@@ -196,6 +261,18 @@ const Upload = () => {
                   </div>
                   
                   <div 
+                    onClick={() => handleDocumentTypeChange('assignment')}
+                    className={`flex items-center space-x-2 cursor-pointer ${documentType === 'assignment' ? 'text-brand-purple' : 'text-gray-700'}`}
+                  >
+                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${documentType === 'assignment' ? 'border-brand-purple' : 'border-gray-400'}`}>
+                      {documentType === 'assignment' && (
+                        <div className="w-2 h-2 rounded-full bg-brand-purple"></div>
+                      )}
+                    </div>
+                    <span>Assignment</span>
+                  </div>
+
+                  <div 
                     onClick={() => handleDocumentTypeChange('notes')}
                     className={`flex items-center space-x-2 cursor-pointer ${documentType === 'notes' ? 'text-brand-purple' : 'text-gray-700'}`}
                   >
@@ -208,22 +285,22 @@ const Upload = () => {
                   </div>
                   
                   <div 
-                    onClick={() => handleDocumentTypeChange('assignment')}
-                    className={`flex items-center space-x-2 cursor-pointer ${documentType === 'assignment' ? 'text-brand-purple' : 'text-gray-700'}`}
+                    onClick={() => handleDocumentTypeChange('other_resources')}
+                    className={`flex items-center space-x-2 cursor-pointer ${documentType === 'other_resources' ? 'text-brand-purple' : 'text-gray-700'}`}
                   >
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${documentType === 'assignment' ? 'border-brand-purple' : 'border-gray-400'}`}>
-                      {documentType === 'assignment' && (
+                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${documentType === 'other_resources' ? 'border-brand-purple' : 'border-gray-400'}`}>
+                      {documentType === 'other_resources' && (
                         <div className="w-2 h-2 rounded-full bg-brand-purple"></div>
                       )}
                     </div>
-                    <span>Assignment</span>
+                    <span>Other Resources</span>
                   </div>
                 </div>
               </div>
               
               <div className="mb-6">
                 <label className="block text-gray-700 font-medium mb-2">
-                  Tags (Optional)
+                  Tags (Separated by commas)
                 </label>
                 <input
                   type="text"
@@ -236,7 +313,7 @@ const Upload = () => {
               
               <div className="mb-6">
                 <label className="block text-gray-700 font-medium mb-2">
-                  Description (Optional)
+                  Description
                 </label>
                 <textarea
                   placeholder="Add a description (e.g., 'Covers chapters 1-5')"
@@ -290,7 +367,10 @@ const Upload = () => {
                     <h3 className="text-xl font-medium mb-2">Your document has been uploaded successfully!</h3>
                     <p className="text-gray-600 mb-4">Your document will be reviewed and made available to others shortly.</p>
                     <div className="flex justify-center space-x-3">
-                      <button className="border border-gray-200 text-gray-700 px-6 py-2.5 rounded-full font-medium hover:bg-gray-50 transition-colors">
+                      <button 
+                        onClick={handleViewFileInternal} 
+                        className="border border-gray-200 text-gray-700 px-6 py-2.5 rounded-full font-medium hover:bg-gray-50 transition-colors"
+                      >
                         View Document
                       </button>
                       <button

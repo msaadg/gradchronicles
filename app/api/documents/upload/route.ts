@@ -2,20 +2,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Storage } from 'megajs';
 import { Readable } from 'stream';
-import { createDocument, findExistingDocument } from '@/lib/db';
+import { createDocument, findExistingDocument, findUserByEmail } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
+import { getServerSession } from 'next-auth/next';
+import { NEXT_AUTH } from '@/app/lib/auth';
 
 export async function POST(req: NextRequest) {
-  // TODO: Replace with actual auth
+  const session = await getServerSession(NEXT_AUTH);
+  
+  if (!session || !session.user || !session.user.email) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
 
-  // const session = await getServerSession(req, { req }, authOptions);
-  // if (!session || !session.user) {
-  //   return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  // }
-
-  // const userId = session.user.id; // Adjust based on your session structure
-
-  const userId = '1';
+  const userEmail = session.user.email;
+  const user = await findUserByEmail(userEmail);
+  if (!user) {
+    return NextResponse.json({ message: 'User not found' }, { status: 404 });
+  }
+  const userId = user.id;
+  
   const formData = await req.formData();
   const file = formData.get('file') as File | null;
   if (!file) {

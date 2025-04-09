@@ -36,7 +36,7 @@ const Navbar = ({ isLoggedIn: propIsLoggedIn = false }: NavbarProps) => {
           <div className="flex space-x-8">
             {isLoggedIn ? (
               <>
-                <NavLink href="/" active={pathname === "/"}>Home</NavLink>
+                <NavLink href="/home" active={pathname === "/home"}>Home</NavLink>
                 <NavLink href="/upload" active={pathname === "/upload"}>Upload</NavLink>
                 <NavLink href="/chatbot" active={pathname === "/chatbot"}>Chatbot</NavLink>
               </>

@@ -75,7 +75,7 @@ const Login = () => {
         throw new Error('Failed to sign in after signup: ' + signInResponse.error);
       }
   
-      toast.success('Account created successfully! Redirecting...');
+      toast.success('Account created successfully!');
       setSignupData({ firstName: '', lastName: '', email: '', password: '' });
     } catch (error: any) {
       toast.error(error.message || 'An error occurred during signup');
@@ -100,7 +100,7 @@ const Login = () => {
         throw new Error('Invalid email or password');
       }
 
-      toast.success('Logged in successfully! Redirecting...');
+      toast.success('Logged in successfully!');
       setLoginData({ email: '', password: '' });
     } catch (error: any) {
       toast.error(error.message || 'An error occurred during login');

@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="page-container">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">Quick Links</h3>
+            <h3 className="text-sm font-semibold text-black uppercase tracking-wider">Quick Links</h3>
             <ul className="mt-4 space-y-3">
               <FooterLink href="/about">About Us</FooterLink>
               <FooterLink href="/privacy">Privacy Policy</FooterLink>
@@ -17,7 +17,7 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">Stay Updated with our Newsletter!</h3>
+            <h3 className="text-sm font-semibold text-black uppercase tracking-wider">Stay Updated with our Newsletter!</h3>
             <div className="mt-4 flex">
               <input 
                 type="email" 
@@ -31,7 +31,7 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">Follow Us</h3>
+            <h3 className="text-sm font-semibold text-black uppercase tracking-wider">Follow Us</h3>
             <div className="mt-4 flex space-x-4">
               <a href="#" className="text-gray-500 hover:text-brand-purple transition-colors">
                 <Facebook size={20} />
@@ -57,7 +57,7 @@ const Footer = () => {
 const FooterLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
   return (
     <li>
-      <Link href={href} className="text-gray-600 hover:text-brand-purple transition-colors">
+      <Link href={href} className="text-black hover:text-brand-purple transition-colors">
         {children}
       </Link>
     </li>

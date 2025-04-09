@@ -67,10 +67,9 @@ const DocumentCard = ({
         
         {showViewButton && (
           <div className="mt-4">
-            <Link href={`/document/${id}`} passHref>
-            <a className="block w-full text-center bg-brand-purple text-white py-2 rounded-lg hover:bg-brand-purple-dark transition-colors">
+            <Link href={`/document/${id}`} className="block w-full text-center bg-brand-purple text-white py-2 rounded-lg hover:bg-brand-purple-dark transition-colors">
                 View Document
-            </a>
+            
             </Link>
           </div>
         )}

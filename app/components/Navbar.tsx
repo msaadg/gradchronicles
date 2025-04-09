@@ -82,11 +82,17 @@ const Navbar = ({ isLoggedIn: propIsLoggedIn = false }: NavbarProps) => {
             </div>
           ) : (
             <div className="flex items-center space-x-3">
-              <Link href="/login" className="text-brand-purple font-medium px-4 py-2 rounded-full hover:bg-brand-purple/5 transition-colors">
+              <Link
+                href={{ pathname: "/login", query: { tab: "login" } }}
+                className="text-brand-purple font-medium px-4 py-2 rounded-full hover:bg-brand-purple/5 transition-colors"
+              >
                 Login
               </Link>
-              <Link href="/login" className="bg-brand-purple text-white font-medium px-4 py-2 rounded-full hover:bg-brand-purple-dark transition-colors">
-                Sign Up 
+              <Link
+                href={{ pathname: "/login", query: { tab: "signup" } }}
+                className="bg-brand-purple text-white font-medium px-4 py-2 rounded-full hover:bg-brand-purple-dark transition-colors"
+              >
+                Sign Up
               </Link>
             </div>
           )}

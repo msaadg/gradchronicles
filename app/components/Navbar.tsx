@@ -1,21 +1,31 @@
 'use client';
 import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { User } from 'lucide-react';
 import Link from 'next/link';
 import Logo from './Logo';
+import { signOut, useSession } from 'next-auth/react'; // Added signOut and useSession
 
 interface NavbarProps {
-  isLoggedIn?: boolean;
+  isLoggedIn?: boolean; // Keep as optional prop for flexibility
 }
 
-const Navbar = ({ isLoggedIn = false }: NavbarProps) => {
+const Navbar = ({ isLoggedIn: propIsLoggedIn = false }: NavbarProps) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
+  const { data: session, status } = useSession(); // Get session state
   const pathname = usePathname();
+  const router = useRouter();
+
+  const isLoggedIn = session ? true : propIsLoggedIn; // Use session if available, fallback to prop
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
+  };
+
+  const handleSignOut = async () => {
+    await signOut({ redirect: false }); // Sign out without immediate redirect
+    setDropdownOpen(false); // Close dropdown
+    router.push("/login"); // Redirect to login page
   };
 
   return (
@@ -33,14 +43,14 @@ const Navbar = ({ isLoggedIn = false }: NavbarProps) => {
             ) : (
               <>
                 <NavLink href="/" active={pathname === "/"}>Home</NavLink>
-                <NavLink href="/" active={pathname === "/#"}>Features</NavLink>
+                <NavLink href="/#features" active={pathname === "/#features"}>Features</NavLink>
               </>
             )}
           </div>
           
           {isLoggedIn ? (
             <div className="relative">
-              <div className='w-56 flex justify-end'> 
+              <div className="w-56 flex justify-end">
                 <button 
                   onClick={toggleDropdown}
                   className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
@@ -61,9 +71,12 @@ const Navbar = ({ isLoggedIn = false }: NavbarProps) => {
                     Notifications <span className="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full ml-2">3</span>
                   </Link>
                   <div className="border-t border-gray-100 my-1"></div>
-                  <Link href="/logout" className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white">
-                    Logout
-                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white"
+                  >
+                    Sign Out
+                  </button>
                 </div>
               )}
             </div>
@@ -72,7 +85,6 @@ const Navbar = ({ isLoggedIn = false }: NavbarProps) => {
               <Link href="/login" className="text-brand-purple font-medium px-4 py-2 rounded-full hover:bg-brand-purple/5 transition-colors">
                 Login
               </Link>
-              {/* did login here as well, as they same on the same page */}
               <Link href="/login" className="bg-brand-purple text-white font-medium px-4 py-2 rounded-full hover:bg-brand-purple-dark transition-colors">
                 Sign Up 
               </Link>

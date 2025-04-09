@@ -1,33 +1,46 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
 import Logo from '../components/Logo';
 import Image from 'next/image';
+import { signIn, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 const Login = () => {
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
   const [showPassword, setShowPassword] = useState(false);
-  
+  const { data: session, status } = useSession(); // Add session tracking
+  const router = useRouter();
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
+  // Redirect when authenticated
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/home");
+    }
+  }, [status, router]);
+
+  // Handle loading state
+  if (status === "loading") {
+    return <div className="flex min-h-screen justify-center items-center">Loading...</div>;
+  }
 
   return (
     <div className="flex min-h-screen">
       {/* Left Column - Illustration */}
       <div className="hidden md:flex md:w-1/2 bg-gray-50 flex-col justify-center p-12">
-      
         <div className="max-w-md mx-auto">
-      
-        <Image 
+          <Image 
             src="/login-image.png" 
             alt="Students collaborating" 
             width={300} 
             height={200} 
-            className="mx-auto mb-6 max-w-full rounded-lg animate-fade-in" // center it
+            className="mx-auto mb-6 max-w-full rounded-lg animate-fade-in"
           />    
-          
           <h1 className="text-3xl font-bold mb-4">Collaborate. Learn. Succeed.</h1>
           <p className="text-gray-600 mb-8">Join thousands of students sharing and accessing study materials.</p>
           <div className="flex justify-center">
@@ -38,7 +51,6 @@ const Login = () => {
               Learn More
             </Link>
           </div>
-          
         </div>
       </div>
       
@@ -115,7 +127,13 @@ const Login = () => {
               </button>
               
               <div className="text-center text-gray-600">
-                Don't have an account? <span className="text-brand-purple hover:underline cursor-pointer" onClick={() => setActiveTab('signup')}>Sign Up</span>
+                Don&apos;t have an account?{' '}
+                <span
+                  className="text-brand-purple hover:underline cursor-pointer"
+                  onClick={() => setActiveTab('signup')}
+                >
+                  Sign Up
+                </span>
               </div>
               
               <div className="relative my-6">
@@ -137,38 +155,28 @@ const Login = () => {
                 <button
                   type="button"
                   className="py-3 px-4 border border-gray-200 rounded-full flex justify-center items-center space-x-2 hover:bg-gray-50 transition-colors"
+                  onClick={async () => {
+                    await signIn("github", { callbackUrl: "/home" });
+                  }}
                 >
-                  <span>Continue with Microsoft</span>
+                  <span>Continue with Github</span>
                 </button>
               </div>
             </form>
           ) : (
             <form className="space-y-6">
+              {/* Signup form unchanged */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <input
-                    type="text"
-                    placeholder="First Name"
-                    className="form-input"
-                  />
+                  <input type="text" placeholder="First Name" className="form-input" />
                 </div>
                 <div>
-                  <input
-                    type="text"
-                    placeholder="Last Name"
-                    className="form-input"
-                  />
+                  <input type="text" placeholder="Last Name" className="form-input" />
                 </div>
               </div>
-              
               <div>
-                <input
-                  type="email"
-                  placeholder="Email Address"
-                  className="form-input"
-                />
+                <input type="email" placeholder="Email Address" className="form-input" />
               </div>
-              
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -187,9 +195,7 @@ const Login = () => {
                   )}
                 </button>
               </div>
-              
               <div>
-                {/* hard-coded, need to change this */}
                 <select className="form-input">
                   <option value="">Select your university</option>
                   <option value="1">University of ABC</option>
@@ -197,18 +203,21 @@ const Login = () => {
                   <option value="3">Other</option>
                 </select>
               </div>
-              
               <button
                 type="submit"
                 className="w-full bg-brand-purple text-white py-3 rounded-full font-medium transition-colors hover:bg-brand-purple-dark"
               >
                 Create Account
               </button>
-              
               <div className="text-center text-gray-600">
-                Already have an account? <span className="text-brand-purple hover:underline cursor-pointer" onClick={() => setActiveTab('login')}>Log In</span>
+                Already have an account?{' '}
+                <span
+                  className="text-brand-purple hover:underline cursor-pointer"
+                  onClick={() => setActiveTab('login')}
+                >
+                  Log In
+                </span>
               </div>
-              
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-200"></div>
@@ -217,7 +226,6 @@ const Login = () => {
                   <span className="bg-white px-4 text-sm text-gray-500">Or continue with</span>
                 </div>
               </div>
-              
               <div className="grid grid-cols-2 gap-4">
                 <button
                   type="button"
@@ -228,8 +236,11 @@ const Login = () => {
                 <button
                   type="button"
                   className="py-3 px-4 border border-gray-200 rounded-full flex justify-center items-center space-x-2 hover:bg-gray-50 transition-colors"
+                  onClick={async () => {
+                    await signIn("github", { callbackUrl: "/home" });
+                  }}
                 >
-                  <span>Continue with Microsoft</span>
+                  <span>Continue with Github</span>
                 </button>
               </div>
             </form>

@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { FileUp } from 'lucide-react';
-import Footer from "../components/Footer";
-import Navbar from "../components/Navbar";
+import Footer from "@/app/components/Footer";
+import Navbar from "@/app/components/Navbar";
 import { toast } from 'sonner';
 
 const Upload = () => {

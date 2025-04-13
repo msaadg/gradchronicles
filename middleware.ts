@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const publicRoutes = ['/', '/login', '/api/signup', '/api/auth'];
+  const publicRoutes = ['/', '/login', '/api/signup'];
   const isPublicRoute = publicRoutes.some((route) => pathname === route || pathname.startsWith(route));
   const isApiRoute = pathname.startsWith('/api/');
   
@@ -32,7 +32,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!$|_next/static|_next/image|favicon.ico|login|signup|features|api/auth|.*\\.(?:png|jpg|jpeg|gif|svg|ico|css|js)).*)',
+    '/((?!$|_next/static|_next/image|favicon.ico|login|signup|features|.*\\.(?:png|jpg|jpeg|gif|svg|ico|css|js)).*)',
     '/api/((?!auth).*)',
   ],
 };

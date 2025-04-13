@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 // import { toast } from 'sonner';
-import Navbar from '../components/Navbar';
+import Navbar from '@/app/components/Navbar';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');

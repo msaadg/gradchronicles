@@ -1,8 +1,8 @@
 'use client';
 import { Search as SearchIcon } from 'lucide-react';
 import { Star } from 'lucide-react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Navbar from '@/app/components/Navbar';
+import Footer from '@/app/components/Footer';
 import Image from 'next/image';
 
 const Search = () => {

@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Download, ZoomIn, ZoomOut, ArrowLeft, ArrowRight, Star } from 'lucide-react';
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
+import Navbar from "@/app/components/Navbar";
+import Footer from "@/app/components/Footer";
 import Image from 'next/image';
 
 export default function ViewDocument() {
@@ -35,7 +35,7 @@ export default function ViewDocument() {
       time: '2 hours ago',
       content: 'This document is really helpful, especially for the algorithms section!',
       canDelete: false,
-      avatar: '/images/avatar1.jpg'
+      avatar: '/avatar1.png'
     },
     {
       id: '2',
@@ -43,7 +43,7 @@ export default function ViewDocument() {
       time: '5 hours ago',
       content: 'Great notes! They clarified some of the doubts I had. Thanks for sharing!',
       canDelete: true,
-      avatar: '/images/avatar2.jpg'
+      avatar: '/avatar1.png'
     }
   ];
 
@@ -156,7 +156,7 @@ export default function ViewDocument() {
                     <div className="flex items-start">
                       <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
                         <Image
-                          src={comment.avatar || "https://via.placeholder.com/40"}
+                          src={comment.avatar}
                           alt={comment.author}
                           width={40}
                           height={40}
@@ -200,7 +200,7 @@ export default function ViewDocument() {
                   <div key={doc.id} className="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
                     <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
                       <Image
-                        src={`https://via.placeholder.com/100?text=${doc.title.split(' ')[0]}`}
+                        src="/login-image.png"
                         alt={doc.title}
                         width={100}
                         height={100}

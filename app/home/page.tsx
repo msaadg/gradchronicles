@@ -1,11 +1,23 @@
 'use client';
 import Link from 'next/link';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import SearchBar from '../components/SearchBar';
-import DocumentCard from '../components/DocumentCard';
+import Navbar from '@/app/components/Navbar';
+import Footer from '@/app/components/Footer';
+import SearchBar from '@/app/components/SearchBar';
+import DocumentCard from '@/app/components/DocumentCard';
+import { useSession } from 'next-auth/react';
 
 const Home = () => {
+  // get user
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (status === "unauthenticated") {
+    return <div>Access Denied</div>;
+  }
+
   // This is just example data, in a real app you'd fetch this from an API
   const recentlyViewedDocs = [
     {
@@ -65,7 +77,7 @@ const Home = () => {
       <main className="bg-[#fbf8f8] flex-grow pb-16">
         <div className="page-container pt-8">
         <div className="bg-white rounded-xl shadow-sm p-8 mb-8 transform translate-y-1">
-            <h1 className="text-2xl font-bold mb-6">Hi, Ali! Ready to learn?</h1>
+            <h1 className="text-2xl font-bold mb-6">Hi, {session?.user?.name}! Ready to learn?</h1>
             <SearchBar hasAdvancedFilters={true} />
           </div>
           

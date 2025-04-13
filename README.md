@@ -117,8 +117,8 @@ NEXTAUTH_SECRET="your-secret" # Generate with `openssl rand -base64 32`
 ## API Endpoints
 Here are some key API endpoints (see full specs in the project documentation):
 - **Authentication**:
-  - `POST /api/auth/signup` - Register a new user.
-  - `POST /api/auth/login` - Log in a user.
+  - `POST /api/login` - Register a new user.
+  - `POST /api/login` - Log in a user.
 - **Document Management**:
   - `POST /api/documents/upload` - Upload a document.
   - `GET /api/documents` - List all documents.

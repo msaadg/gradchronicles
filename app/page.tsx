@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { MessageSquare, Download, Users } from 'lucide-react';
-import Navbar from './components/Navbar';
-import Footer from "./components/Footer";
-import SearchBar from './components/SearchBar';
-import FeatureCard from './components/FeatureCard';
-import TestimonialCard from './components/TestimonialCard';
-import SmoothScrollButton from './components/ui/SmoothScrollButton';
+import Navbar from '@/app/components/Navbar';
+import Footer from "@/app/components/Footer";
+import SearchBar from '@/app/components/SearchBar';
+import FeatureCard from '@/app/components/FeatureCard';
+import TestimonialCard from '@/app/components/TestimonialCard';
+import SmoothScrollButton from '@/app/components/ui/SmoothScrollButton';
 
 export default function Home() {
   return (

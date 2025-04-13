@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
-import Logo from '../components/Logo';
+import Logo from '@/app/components/Logo';
 import Image from 'next/image';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';

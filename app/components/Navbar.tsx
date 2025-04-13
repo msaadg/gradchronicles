@@ -12,7 +12,7 @@ interface NavbarProps {
 
 const Navbar = ({ isLoggedIn: propIsLoggedIn = false }: NavbarProps) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { data: session, status } = useSession(); // Get session state
+  const { data: session } = useSession(); // Get session state
   const pathname = usePathname();
   const router = useRouter();
 

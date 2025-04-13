@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Download, ZoomIn, ZoomOut, ArrowLeft, ArrowRight, Star } from 'lucide-react';
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import Image from 'next/image';
 
 export default function ViewDocument() {
   const [comment, setComment] = useState('');
@@ -81,9 +82,11 @@ export default function ViewDocument() {
               </div>
               
               <div className="bg-gray-100 rounded-lg min-h-[400px] flex items-center justify-center overflow-hidden">
-                <img 
+                <Image 
                   src="/f185f2fc-4a7b-4a4c-ad0a-bed9c2f4f052.png"
                   alt="Document Preview"
+                  width={800}
+                  height={600}
                   className="max-w-full h-auto transform transition-transform duration-300 hover:scale-105"
                 />
               </div>
@@ -152,9 +155,11 @@ export default function ViewDocument() {
                   <div key={comment.id} className="border-b border-gray-100 pb-4 last:border-0">
                     <div className="flex items-start">
                       <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                        <img
+                        <Image
                           src={comment.avatar || "https://via.placeholder.com/40"}
                           alt={comment.author}
+                          width={40}
+                          height={40}
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -194,9 +199,11 @@ export default function ViewDocument() {
                 {relatedDocs.map(doc => (
                   <div key={doc.id} className="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
                     <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
-                      <img
+                      <Image
                         src={`https://via.placeholder.com/100?text=${doc.title.split(' ')[0]}`}
                         alt={doc.title}
+                        width={100}
+                        height={100}
                         className="w-full h-full object-cover"
                       />
                     </div>

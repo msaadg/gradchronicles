@@ -1,6 +1,7 @@
-import { PrismaClient, Prisma } from '@prisma/client/edge'
+import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import * as bcrypt from 'bcryptjs';
+import { ExtractedMetadata } from '@/app/lib/types';
 
 const prisma = new PrismaClient().$extends(withAccelerate())
 
@@ -13,7 +14,7 @@ export async function createDocument(data: {
   fileType: string;
   tags: string[];
   authorId: string;
-  metadata?: Record<string, any>;
+  metadata?: ExtractedMetadata;
 }) {
   return prisma.document.create({
     data: {

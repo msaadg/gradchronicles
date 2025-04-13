@@ -1,13 +1,12 @@
 'use client';
-import { useState } from 'react';
 import { Search as SearchIcon } from 'lucide-react';
-import { Download, ZoomIn, ZoomOut, ArrowLeft, ArrowRight, Star } from 'lucide-react';
+import { Star } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import DocumentCard from '../components/DocumentCard';
+import Image from 'next/image';
 
 const Search = () => {
-  const [hasResults, setHasResults] = useState(true);
+  const hasResults = true;
 
   // Example search results data
   const searchResults = [
@@ -102,9 +101,11 @@ const Search = () => {
                   {searchResults.map(doc => (
                     <div key={doc.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                       <div className="h-48 overflow-hidden bg-gray-100">
-                        <img
+                        <Image
                           src= {doc.imageUrl || "https://via.placeholder.com/400x200"}
                           alt={doc.title}
+                          width={400}
+                          height={200}
                           className="w-full h-full object-cover object-center"
                         />
                       </div>

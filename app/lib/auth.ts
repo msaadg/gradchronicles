@@ -1,7 +1,12 @@
+// /app/lib/auth.ts
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { createOAuthUser, findUserByEmail, updateUserWithOAuth } from "@/lib/db";
+import { createOAuthUser, findUserByEmail, updateUserWithOAuth } from "@/app/lib/db";
+import { Credentials } from "@/app/lib/types";
+import { Account, Profile, User } from "next-auth";
+import { JWT } from "next-auth/jwt";
+import { Session } from "next-auth";
 import * as bcrypt from "bcryptjs";
 
 export const NEXT_AUTH = {
@@ -12,7 +17,7 @@ export const NEXT_AUTH = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials: any) {
+      async authorize(credentials: Credentials | undefined) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email and password are required");
         }
@@ -41,20 +46,24 @@ export const NEXT_AUTH = {
   ],
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async signIn({ user, account }: any) {
-      if (account.provider === "github" || account.provider === "google") {
-        const existingUser = await findUserByEmail(user.email);
+    async signIn({ user, account }: { 
+      user: User; 
+      account: Account | null; 
+      profile?: Profile 
+    }) {
+      if (account?.provider === "github" || account?.provider === "google") {
+        const existingUser = await findUserByEmail(user.email!);
 
         if (!existingUser) {
           await createOAuthUser(
-            user.email,
-            user.name,
+            user.email!,
+            user.name!,
             account.provider,
             account.providerAccountId,
           );
         } else if (!existingUser.oauthProvider || !existingUser.oauthId) {
           await updateUserWithOAuth(
-            user.email,
+            user.email!,
             account.provider,
             account.providerAccountId,
           );
@@ -62,11 +71,11 @@ export const NEXT_AUTH = {
       }
       return true;
     },
-    jwt: ({ user, token }: any) => {
+    jwt: ({ token }: { token: JWT }) => {
       token.userId = token.sub;
       return token;
     },
-    session: ({ session, token }: any) => {
+    session: ({ session, token }: { session: Session; token: JWT }) => {
       if (session.user) {
         session.user.id = token.userId;
       }
@@ -74,6 +83,6 @@ export const NEXT_AUTH = {
     },
   },
   pages: {
-    signIn: "/login", 
+    signIn: "/login",
   },
 };

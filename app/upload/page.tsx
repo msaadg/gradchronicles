@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { FileUp, X } from 'lucide-react';
+import { FileUp } from 'lucide-react';
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { toast } from 'sonner';

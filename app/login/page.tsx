@@ -1,5 +1,6 @@
+// /app/login/page.tsx
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
 import Logo from '../components/Logo';
@@ -8,7 +9,7 @@ import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 
-const Login = () => {
+function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const { data: session, status } = useSession(); // Add session tracking
   const router = useRouter();
@@ -77,8 +78,9 @@ const Login = () => {
   
       toast.success('Account created successfully!');
       setSignupData({ firstName: '', lastName: '', email: '', password: '' });
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred during signup');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'An error occurred during signup';
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -102,8 +104,9 @@ const Login = () => {
 
       toast.success('Logged in successfully!');
       setLoginData({ email: '', password: '' });
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred during login');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'An error occurred during login';
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -118,8 +121,12 @@ const Login = () => {
       if (signInResponse?.error) {
         throw new Error(`Failed to sign in with ${provider}`);
       }
-    } catch (error: any) {
-      toast.error(error.message || `An error occurred during ${provider} sign-in`);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : `An error occurred during ${provider} sign-in`;
+      toast.error(message);
     } finally {
       setIsOAuthLoading((prev) => ({ ...prev, [provider]: false }));
       toast.success(`Signing in with ${provider}...`);
@@ -128,10 +135,10 @@ const Login = () => {
 
   // Redirect when authenticated
   useEffect(() => {
-    if (status === "authenticated") {
+    if (session && status === "authenticated") {
       router.push("/home");
     }
-  }, [status, router]);
+  }, [status, router, session]);
 
   // Handle loading state
   if (status === "loading") {
@@ -467,4 +474,18 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default function Login() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen justify-center items-center">
+        <div className="p-2 flex space-x-1">
+          <div className="h-2 w-2 bg-brand-purple rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+          <div className="h-2 w-2 bg-brand-purple rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+          <div className="h-2 w-2 bg-brand-purple rounded-full animate-bounce"></div>
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
+  );
+}

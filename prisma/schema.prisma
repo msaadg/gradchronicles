@@ -38,7 +38,7 @@ model Course {
   name        String      @unique
   description String?
   createdAt   DateTime    @default(now())
-  slug String @unique
+  slug        String @unique
   documents   Document[]
 }
 

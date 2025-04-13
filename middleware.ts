@@ -1,15 +1,17 @@
+// /middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const publicRoutes = ['/', '/login'];
-  const isPublicRoute = publicRoutes.includes(pathname);
+  const publicRoutes = ['/', '/login', '/api/signup', '/api/auth'];
+  const isPublicRoute = publicRoutes.some((route) => pathname === route || pathname.startsWith(route));
   const isApiRoute = pathname.startsWith('/api/');
   
   // Check for authentication token in cookies
-  const authToken = request.cookies.get('next-auth.session-token')?.value || 
-                    request.cookies.get('__Secure-next-auth.session-token')?.value;
+  const authToken =
+    request.cookies.get('next-auth.session-token')?.value ||
+    request.cookies.get('__Secure-next-auth.session-token')?.value;
 
   if (isPublicRoute) {
     return NextResponse.next();

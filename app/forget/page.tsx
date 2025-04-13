@@ -1,40 +1,40 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import Logo from '../components/Logo';
-import { toast } from 'sonner';
+// import { toast } from 'sonner';
 import Navbar from '../components/Navbar';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const isLoading = false;
+  // const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
 
-    try {
-      // TODO: Implement api/forgot-password (high difficulty, validate with sending link to email or code to email)
-      const response = await fetch('/api/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
+  //   try {
+  //     // TODO: Implement api/forgot-password (high difficulty, validate with sending link to email or code to email)
+  //     const response = await fetch('/api/forgot-password', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ email }),
+  //     });
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to send reset email');
-      }
+  //     if (!response.ok) {
+  //       throw new Error(data.message || 'Failed to send reset email');
+  //     }
 
-      toast.success('Password reset email sent! Please check your inbox.');
-      setEmail('');
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred while sending the reset email');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     toast.success('Password reset email sent! Please check your inbox.');
+  //     setEmail('');
+  //   } catch (error: any) {
+  //     toast.error(error.message || 'An error occurred while sending the reset email');
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   return (
     <>

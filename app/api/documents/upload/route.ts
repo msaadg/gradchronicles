@@ -2,10 +2,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Storage } from 'megajs';
 import { Readable } from 'stream';
-import { createDocument, findExistingDocument, findUserByEmail } from '@/lib/db';
+import { createDocument, findExistingDocument, findUserByEmail } from '@/app/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { getServerSession } from 'next-auth/next';
 import { NEXT_AUTH } from '@/app/lib/auth';
+import { ExtractedMetadata } from '@/app/lib/types';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(NEXT_AUTH);
@@ -73,7 +74,15 @@ export async function POST(req: NextRequest) {
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    let extractedMetadata: Record<string, any> = {};
+    const extractedMetadata: ExtractedMetadata = {
+      fileType: file.name.endsWith('.pdf') ? 'PDF' 
+        : file.name.endsWith('.docx') ? 'DOCX'
+        : file.name.endsWith('.doc') ? 'DOC'
+        : 'TXT',
+      mimeType: file.type,
+      fileSize: file.size,
+    };
+    
 
     // TODO: Implement metadata extraction logic for pdf, docx, txt files
 

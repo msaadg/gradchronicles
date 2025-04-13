@@ -1,6 +1,6 @@
 // app/api/signup/route.ts
 import { NextResponse } from 'next/server';
-import { createUser, findUserByEmail } from '@/lib/db';
+import { createUser, findUserByEmail } from '@/app/lib/db';
 
 export async function POST(request: Request) {
   try {

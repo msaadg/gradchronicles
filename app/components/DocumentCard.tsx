@@ -1,6 +1,7 @@
 
 import Link from 'next/link';
 import { Star } from 'lucide-react';
+import Image from 'next/image';
 
 interface DocumentCardProps {
   id: string;
@@ -29,9 +30,11 @@ const DocumentCard = ({
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md hover:-translate-y-1 duration-300">
       {imageUrl && (
         <div className="h-48 overflow-hidden">
-          <img
+          <Image
             src={imageUrl}
             alt={title}
+            width={400}
+            height={200}
             className="w-full h-full object-cover object-center"
           />
         </div>

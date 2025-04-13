@@ -1,6 +1,6 @@
 // app/api/courses/route.ts
 import { NextResponse } from 'next/server';
-import { getAllCourses } from '@/lib/db';
+import { getAllCourses } from '@/app/lib/db';
 
 export async function GET() {
   try {

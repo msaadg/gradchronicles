@@ -173,7 +173,7 @@ function LoginForm() {
       {/* Right Column - Form */}
       <div className="flex-1 flex flex-col p-8 md:p-12">
         <div className="max-w-md w-full mx-auto">
-          <div className="md:hidden">
+          <div>
             <Logo />
           </div>
           
@@ -278,7 +278,7 @@ function LoginForm() {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col justify-center gap-2 xl:grid xl:grid-cols-2 xl:gap-4">
                 <button
                   type="button"
                   className="py-3 px-4 border border-gray-200 rounded-full flex justify-center items-center space-x-2 hover:bg-gray-50 transition-colors"
@@ -418,7 +418,7 @@ function LoginForm() {
                   <span className="bg-white px-4 text-sm text-gray-500">Or continue with</span>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col justify-center gap-2 xl:grid xl:grid-cols-2 xl:gap-4">
                 <button
                   type="button"
                   className="py-3 px-4 border border-gray-200 rounded-full flex justify-center items-center space-x-2 hover:bg-gray-50 transition-colors"

@@ -50,7 +50,7 @@ const Navbar = ({ isLoggedIn: propIsLoggedIn = false }: NavbarProps) => {
           
           {isLoggedIn ? (
             <div className="relative">
-              <div className="w-56 flex justify-end">
+              <div className="md:w-56 flex justify-end">
                 <button 
                   onClick={toggleDropdown}
                   className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"

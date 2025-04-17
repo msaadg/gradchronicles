@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { User } from 'lucide-react';
+import { User, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import Logo from './Logo';
 import { signOut, useSession } from 'next-auth/react'; // Added signOut and useSession
@@ -12,6 +12,7 @@ interface NavbarProps {
 
 const Navbar = ({ isLoggedIn: propIsLoggedIn = false }: NavbarProps) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const { data: session } = useSession(); // Get session state
   const pathname = usePathname();
   const router = useRouter();
@@ -20,6 +21,16 @@ const Navbar = ({ isLoggedIn: propIsLoggedIn = false }: NavbarProps) => {
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
+    setMenuOpen(false);
+  };
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+    setDropdownOpen(false);
+  };
+
+  const handleMenuLinkClick = () => {
+    setMenuOpen(false);
   };
 
   const handleSignOut = async () => {
@@ -33,58 +44,113 @@ const Navbar = ({ isLoggedIn: propIsLoggedIn = false }: NavbarProps) => {
       <div className="page-container">
         <div className="flex justify-between items-center h-16">
           <Logo />
-          <div className="flex space-x-8">
+          <div className="hidden md:flex space-x-2 md:space-x-8">
             {isLoggedIn ? (
               <>
                 <NavLink href="/home" active={pathname === "/home"}>Home</NavLink>
                 <NavLink href="/upload" active={pathname === "/upload"}>Upload</NavLink>
+                <NavLink href="/search" active={pathname === "/search"}>Search</NavLink>
                 <NavLink href="/chatbot" active={pathname === "/chatbot"}>Chatbot</NavLink>
               </>
             ) : (
-              <>
-                <NavLink href="/" active={pathname === "/"}>Home</NavLink>
-                <NavLink href="/#features" active={pathname === "/#features"}>Features</NavLink>
-              </>
+              <></>
             )}
           </div>
           
           {isLoggedIn ? (
-            <div className="relative">
-              <div className="md:w-56 flex justify-end">
-                <button 
-                  onClick={toggleDropdown}
-                  className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+            <div className="flex items-center space-x-2">
+              <div className="relative">
+                <button
+                  onClick={toggleMenu}
+                  className="md:hidden p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
                 >
-                  <User className="h-6 w-6" />
+                  {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                 </button>
+                {menuOpen && (
+                  <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 animate-scale-in">
+                    <Link
+                      href="/home"
+                      onClick={handleMenuLinkClick}
+                      className={`block px-4 py-2 text-sm font-medium ${
+                        pathname === "/home"
+                          ? 'text-gray-900 bg-brand-purple/10'
+                          : 'text-gray-700 hover:bg-brand-purple hover:text-white'
+                      }`}
+                    >
+                      Home
+                    </Link>
+                    <Link
+                      href="/upload"
+                      onClick={handleMenuLinkClick}
+                      className={`block px-4 py-2 text-sm font-medium ${
+                        pathname === "/upload"
+                          ? 'text-gray-900 bg-brand-purple/10'
+                          : 'text-gray-700 hover:bg-brand-purple hover:text-white'
+                      }`}
+                    >
+                      Upload
+                    </Link>
+                    <Link
+                      href="/search"
+                      onClick={handleMenuLinkClick}
+                      className={`block px-4 py-2 text-sm font-medium ${
+                        pathname === "/search"
+                          ? 'text-gray-900 bg-brand-purple/10'
+                          : 'text-gray-700 hover:bg-brand-purple hover:text-white'
+                      }`}
+                    >
+                      Search
+                    </Link>
+                    <Link
+                      href="/chatbot"
+                      onClick={handleMenuLinkClick}
+                      className={`block px-4 py-2 text-sm font-medium ${
+                        pathname === "/chatbot"
+                          ? 'text-gray-900 bg-brand-purple/10'
+                          : 'text-gray-700 hover:bg-brand-purple hover:text-white'
+                      }`}
+                    >
+                      Chatbot
+                    </Link>
+                  </div>
+                )}
               </div>
-              
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 animate-scale-in">
-                  <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white">
-                    My Profile 
-                  </Link>
-                  <Link href="/manage-documents" className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white">
-                    Manage Documents
-                  </Link>
-                  <Link href="/notifications" className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white">
-                    Notifications <span className="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full ml-2">3</span>
-                  </Link>
-                  <div className="border-t border-gray-100 my-1"></div>
-                  <button
-                    onClick={handleSignOut}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white"
+              <div className="relative">
+                <div className="lg:w-60 flex justify-end">
+                  <button 
+                    onClick={toggleDropdown}
+                    className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
                   >
-                    Sign Out
+                    <User className="h-6 w-6" />
                   </button>
                 </div>
-              )}
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 animate-scale-in">
+                    <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white">
+                      My Profile 
+                    </Link>
+                    <Link href="/manage-documents" className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white">
+                      Manage Documents
+                    </Link>
+                    <Link href="/notifications" className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white">
+                      Notifications <span className="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full ml-2">3</span>
+                    </Link>
+                    <div className="border-t border-gray-100 my-1"></div>
+                    <button
+                      onClick={handleSignOut}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-brand-purple hover:text-white"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             <div className="flex items-center space-x-3">
               <Link
                 href={{ pathname: "/login", query: { tab: "login" } }}
-                className="text-brand-purple font-medium px-4 py-2 rounded-full hover:bg-brand-purple/5 transition-colors"
+                className="text-brand-purple font-medium px-4 py-2 rounded-full bg-brand-purple/15 hover:bg-brand-purple/25 transition-colors"
               >
                 Login
               </Link>

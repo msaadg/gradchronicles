@@ -98,3 +98,49 @@ export async function updateUserWithOAuth(email: string, provider: string, provi
 export async function disconnect() {
   await prisma.$disconnect();
 }
+// New functions added for view screen
+export async function getDocumentById(documentId: string) {
+  return prisma.document.findUnique({
+    where: { id: documentId },
+    include: {
+      author: { select: { name: true, email: true } }, // Fetch author details
+      course: { select: { name: true } }, // Fetch course name
+      comments: {
+        include: {
+          user: { select: { name: true, profilePicture: true } }, // Fetch commenter details
+        },
+        orderBy: { createdAt: 'desc' },
+      },
+      ratings: true, // Fetch ratings to calculate average
+    },
+  });
+}
+
+export async function incrementViewCount(documentId: string) {
+  return prisma.document.update({
+    where: { id: documentId },
+    data: { viewCount: { increment: 1 } },
+  });
+}
+
+export async function getRelatedDocuments(courseId: number, documentId: string) {
+  return prisma.document.findMany({
+    where: {
+      courseId: courseId,
+      id: { not: documentId }, // Exclude the current document
+    },
+    include: {
+      ratings: true, // Include ratings to calculate average
+      course: { select: { name: true } }, // Include course name
+    },
+    take: 2, // Limit to 2 related documents
+    orderBy: { uploadDate: 'desc' },
+  });
+}
+
+// Depends on the logic we are implementing for ratings
+export function calculateAverageRating(ratings: { value: number }[]) {
+  if (!ratings || ratings.length === 0) return 0;
+  const total = ratings.reduce((sum, rating) => sum + rating.value, 0);
+  return total / ratings.length;
+}

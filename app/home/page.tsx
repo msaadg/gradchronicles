@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import DocumentCard from '@/app/components/DocumentCard';
-import { FileText, Compass, Search, Sparkles } from 'lucide-react';
+import { FileText, Compass, Search, Sparkles, BookOpen, Clock } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { Document } from '@/app/lib/types';
@@ -100,7 +100,12 @@ const Home = () => {
           
           {/* Recently Viewed Section */}
           <section className="mt-12">
-            <h2 className="text-2xl font-bold mb-6">Recently Viewed</h2>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="bg-orange-100 p-2 rounded-lg">
+                <Clock className="w-5 h-5 text-orange-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800">Recently Viewed</h2>
+            </div>
             {isLoading ? (
               <div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -163,7 +168,12 @@ const Home = () => {
 
           {/* Recommended Section */}
           <section className="mt-12">
-            <h2 className="text-2xl font-bold mb-6">Recommended for You</h2>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="bg-blue-100 p-2 rounded-lg">
+                <BookOpen className="w-5 h-5 text-blue-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800">Recommended for You</h2>
+            </div>
             {isLoading ? (
               <div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

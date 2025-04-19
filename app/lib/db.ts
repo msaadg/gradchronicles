@@ -1,7 +1,8 @@
+// lib/db.ts
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import * as bcrypt from 'bcryptjs';
-import { ExtractedMetadata } from '@/app/lib/types';
+import { CourseRecommendation, ExtractedMetadata } from '@/app/lib/types';
 
 const prisma = new PrismaClient().$extends(withAccelerate())
 
@@ -15,7 +16,7 @@ export async function createDocument(data: {
   tags: string[];
   authorId: string;
   metadata?: ExtractedMetadata;
-  thumbnailUrl?: string;
+  thumbnailBase64?: string | null;
 }) {
   return prisma.document.create({
     data: {
@@ -28,7 +29,7 @@ export async function createDocument(data: {
       tags: data.tags,
       authorId: data.authorId,
       metadata: data.metadata,
-      thumbnailUrl: data.thumbnailUrl,
+      thumbnailBase64: data.thumbnailBase64 ?? null,
     },
   });
 }
@@ -97,7 +98,7 @@ export async function updateUserWithOAuth(email: string, provider: string, provi
 }
 
 export async function getRecentlyViewedDocuments(userId: string, limit: number = 3) {
-  return prisma.documentView.findMany({
+  const views = await prisma.documentView.findMany({
     where: { userId },
     orderBy: { viewedAt: 'desc' },
     take: limit,
@@ -108,26 +109,29 @@ export async function getRecentlyViewedDocuments(userId: string, limit: number =
           title: true,
           course: { select: { name: true } },
           ratings: { select: { value: true } },
-          thumbnailUrl: true,
+          thumbnailBase64: true,
         },
       },
     },
-  }).then(views =>
-    views.map(view => {
-      const ratings = view.document.ratings;
-      const avgRating = ratings.length
-        ? ratings.reduce((sum, r) => sum + r.value, 0) / ratings.length
-        : 0;
-      return {
-        id: view.document.id,
-        title: view.document.title,
-        course: view.document.course.name,
-        rating: parseFloat(avgRating.toFixed(1)),
-        totalRating: ratings.length || 5, // Use count of ratings or default to 5
-        imageUrl: view.document.thumbnailUrl || '/default-thumbnail.png', // Fallback image
-      };
-    })
-  );
+  });
+
+  const documents = views.map((view) => {
+    const ratings = view.document.ratings;
+    const avgRating = ratings.length
+      ? ratings.reduce((sum, r) => sum + r.value, 0) / ratings.length
+      : 0;
+
+    return {
+      id: view.document.id,
+      title: view.document.title,
+      course: view.document.course.name,
+      rating: parseFloat(avgRating.toFixed(1)),
+      totalRating: ratings.length || 0,
+      imageBase64: view.document.thumbnailBase64,
+    };
+  });
+
+  return documents;
 }
 
 export async function recordDocumentView(userId: string, documentId: string) {
@@ -166,7 +170,7 @@ export async function getRecommendedCourses(userId: string, limit: number = 3) {
   });
 
   // Extract unique courses and compute metrics
-  const courseMap = new Map<number, any>();
+  const courseMap = new Map<number, CourseRecommendation>();
   viewedCourses.forEach(view => {
     const course = view.document.course;
     if (!courseMap.has(course.id)) {

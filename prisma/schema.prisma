@@ -77,7 +77,7 @@ model Document {
   views             DocumentView[]
   viewCount         Int             @default(0)
   downloadCount     Int             @default(0)
-  thumbnailUrl      String?
+  thumbnailBase64   String?
 }
 
 model DocumentView {

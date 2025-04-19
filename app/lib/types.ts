@@ -1,3 +1,13 @@
+// lib/types.ts
+export interface Document {
+  id: string;
+  title: string;
+  course: string;
+  rating?: number;
+  totalRating?: number;
+  imageBase64?: string | null;
+}
+
 export interface DocumentMetadata {
   summary?: string;
   pageCount?: number;
@@ -24,21 +34,19 @@ export interface Credentials {
   password: string;
 }
 
-// Adding a new Document (Rating and Course) interface
-
-export interface Rating {
-  value: number;
-}
-
-export interface Course {
-  name: string;
+export type CourseRecommendation = {
+  id: number
+  title: string
+  course: string
+  rating: number
+  totalRating: number
 }
 
 export interface Document {
   id: string;
   title: string;
-  course: Course;
-  ratings: Rating[];
+  course: string;
+  ratings: number;
   downloadCount: number;
   uploadDate: Date;
   fileUrl: string;

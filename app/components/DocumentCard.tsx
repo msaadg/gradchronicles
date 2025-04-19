@@ -11,7 +11,7 @@ interface DocumentCardProps {
   totalRating: number;
   downloads?: number;
   uploadDate?: string;
-  imageUrl?: string;
+  imageBase64?: string | null;
   showViewButton?: boolean;
 }
 
@@ -23,22 +23,20 @@ const DocumentCard = ({
   totalRating,
   downloads,
   uploadDate,
-  imageUrl,
+  imageBase64,
   showViewButton = true
 }: DocumentCardProps) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md hover:-translate-y-1 duration-300">
-      {imageUrl && (
-        <div className="h-48 overflow-hidden">
-          <Image
-            src={imageUrl}
-            alt={title}
-            width={400}
-            height={200}
-            className="w-full h-full object-cover object-center"
-          />
-        </div>
-      )}
+      <div className="h-48 overflow-hidden">
+        <Image
+          src={imageBase64 || '/default-thumbnail.png'}
+          alt={title}
+          width={400}
+          height={200}
+          className="w-full h-full object-cover object-top"
+        />
+      </div>
       
       <div className="p-4">
         <h3 className="font-semibold text-lg">{title}</h3>
@@ -57,7 +55,7 @@ const DocumentCard = ({
             ))}
           </div>
           <span className="text-sm text-gray-500 ml-2">
-            {rating}/{totalRating}
+            {rating} ({totalRating})
           </span>
         </div>
         

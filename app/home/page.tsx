@@ -104,7 +104,7 @@ const Home = () => {
               <div className="bg-orange-100 p-2 rounded-lg">
                 <Clock className="w-5 h-5 text-orange-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-800">Recently Viewed</h2>
+              <h2 className="text-lg md:text-2xl font-bold text-gray-800">Recently Viewed</h2>
             </div>
             {isLoading ? (
               <div>
@@ -172,7 +172,7 @@ const Home = () => {
               <div className="bg-blue-100 p-2 rounded-lg">
                 <BookOpen className="w-5 h-5 text-blue-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-800">Recommended for You</h2>
+              <h2 className="text-lg md:text-2xl font-bold text-gray-800">Recommended for You</h2>
             </div>
             {isLoading ? (
               <div>

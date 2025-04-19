@@ -107,7 +107,7 @@ export async function getDocumentById(documentId: string) {
       course: { select: { name: true } }, // Fetch course name
       comments: {
         include: {
-          user: { select: { name: true, profilePicture: true } }, // Fetch commenter details
+          user: { select: { name: true, profilePicture: false } }, // Fetch commenter details
         },
         orderBy: { createdAt: 'desc' },
       },
@@ -117,10 +117,31 @@ export async function getDocumentById(documentId: string) {
 }
 
 export async function incrementViewCount(documentId: string) {
-  return prisma.document.update({
-    where: { id: documentId },
-    data: { viewCount: { increment: 1 } },
-  });
+  try {
+    const updatedDocument = await prisma.document.update({
+      where: { id: documentId },
+      data: { viewCount: { increment: 1 } },
+    });
+    console.log(`View count incremented for document ${documentId}: ${updatedDocument.viewCount}`);
+    return updatedDocument;
+  } catch (error) {
+    console.error(`Failed to increment view count for document ${documentId}:`, error);
+    throw error;
+  }
+}
+
+export async function incrementDownloadCount(documentId: string) {
+  try {
+    const updatedDocument = await prisma.document.update({
+      where: { id: documentId },
+      data: { downloadCount: { increment: 1 } },
+    });
+    console.log(`Download count incremented for document ${documentId}: ${updatedDocument.downloadCount}`);
+    return updatedDocument;
+  } catch (error) {
+    console.error(`Failed to increment download count for document ${documentId}:`, error);
+    throw error;
+  }
 }
 
 export async function getRelatedDocuments(courseId: number, documentId: string) {
@@ -133,7 +154,7 @@ export async function getRelatedDocuments(courseId: number, documentId: string) 
       ratings: true, // Include ratings to calculate average
       course: { select: { name: true } }, // Include course name
     },
-    take: 2, // Limit to 2 related documents
+    take: 3, // Limit to 3 related documents
     orderBy: { uploadDate: 'desc' },
   });
 }

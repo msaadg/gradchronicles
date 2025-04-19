@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'; 
 import { getServerSession } from 'next-auth/next'; 
 import { NEXT_AUTH } from '@/app/lib/auth'; 
-import { getDocumentById,incrementViewCount,getRelatedDocuments,calculateAverageRating,findUserByEmail} from '@/app/lib/db';
+import { getDocumentById,incrementViewCount, incrementDownloadCount, getRelatedDocuments,calculateAverageRating,findUserByEmail} from '@/app/lib/db';
 
 // Interface for metadata to type the Json field
 interface ExtractedMetadata {
@@ -22,7 +22,7 @@ interface DocumentResponse {
   tags: string[];
   fileUrl: string;
   fileType: string;
-  
+  originalFileName: string; 
   fileSize: number;
   averageRating: number;
 }
@@ -33,7 +33,7 @@ interface CommentResponse {
   time: string;
   content: string;
   canDelete: boolean;
-  avatar: string;
+  // avatar: string;
 }
 
 interface RelatedDocResponse {
@@ -84,9 +84,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ message: 'Document not found' }, { status: 404 });
     }
 
-    // Increment the document's view count
-    await incrementViewCount(documentId);
-
     // Calculate average rating for the document
     const averageRating = calculateAverageRating(document.ratings); // Synchronous, no await needed
 
@@ -107,7 +104,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       time: comment.createdAt.toISOString(), // TODO: Consider date-fns for "X hours ago" format
       content: comment.content,
       canDelete: comment.userId === user.id, // Compare with user.id from database
-      avatar: comment.user.profilePicture || '/default-avatar.png', // Default avatar fallback
+      // avatar: comment.user.profilePicture || '/default-avatar.png', // Default avatar fallback
     }));
 
     // Prepare the response object
@@ -123,10 +120,18 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         fileType: document.fileType,
         fileSize: (document.metadata as ExtractedMetadata | null)?.fileSize || 0, // Type metadata with fallback
         averageRating: averageRating || 0,
+        originalFileName: document.originalFileName || document.title, // Fallback to title if original name is not available
       },
       comments: formattedComments,
       relatedDocuments: relatedDocsWithRatings,
     };
+
+    // Increment the document's view count
+    console.log(`Incrementing view count for document ${documentId}`);
+    await incrementViewCount(documentId);
+
+    console.log(`Incrementing download count for document ${documentId}`);
+    await incrementDownloadCount(documentId);
 
     // Return successful response
     return NextResponse.json(response, { status: 200 });

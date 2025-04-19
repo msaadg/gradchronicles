@@ -21,7 +21,7 @@ const Home = () => {
   // This is just example data, in a real app you'd fetch this from an API
   const recentlyViewedDocs = [
     {
-      id: '6b16ba8f-ee6a-461d-8b8b-89a39a2841d3',
+      id: '32bf6a8d-8f0f-4cbd-8ac3-453e10dda0d1',
       title: 'CS101 Midterm Notes',
       course: 'Computer Science 101',
       rating: 4.5,
@@ -29,7 +29,7 @@ const Home = () => {
       imageUrl: '/homepage_Image1.png'
     },
     {
-      id: '2',
+      id: 'd53bfbd7-cafa-45af-a436-93ae2e623d71',
       title: 'Math101 Final Exam',
       course: 'Mathematics 101',
       rating: 4.7,
@@ -37,7 +37,7 @@ const Home = () => {
       imageUrl: '/homepage_Image2.png'
     },
     {
-      id: '3',
+      id: 'e7ea3126-d110-4bf8-bafb-95211d4158f8',
       title: 'History202 Project',
       course: 'History 202',
       rating: 4.8,

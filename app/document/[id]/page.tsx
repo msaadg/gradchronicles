@@ -27,8 +27,11 @@ interface DocumentResponse {
   fileUrl: string;
   fileType: FileType; // Use FileType ('PDF', 'DOC', etc.)
   mimeType: string;   // Add mimeType
+  originalFileName: string; // Using this insead to extarct document type
   fileSize: number;
   averageRating: number;
+  viewCount: number;      // Added to display in UI
+  downloadCount: number;  // Added to display in UI
 }
 
 interface CommentResponse {
@@ -37,7 +40,7 @@ interface CommentResponse {
   time: string;
   content: string;
   canDelete: boolean;
-  avatar: string;
+  // avatar: string;
 }
 
 interface RelatedDocResponse {
@@ -259,7 +262,7 @@ export default function ViewDocument() {
     <div className="flex flex-col min-h-screen">
       <Navbar isLoggedIn={status === 'authenticated'} />
       
-      <main className="flex-grow py-8 container mx-auto px-4">
+      <main className="bg-[#fbf8f8] flex-grow py-10 py-8 container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
@@ -337,7 +340,7 @@ export default function ViewDocument() {
                   className="flex items-center bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-brand-purple-dark transition-colors"
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Download {document.fileType.split('/')[1].toUpperCase()} · {(document.fileSize / (1024 * 1024)).toFixed(1)}MB 
+                  Download {document.originalFileName.slice(document.originalFileName.lastIndexOf('.') + 1).toUpperCase()} · {(document.fileSize / (1024 * 1024)).toFixed(1)}MB
                 </a>
               </div>
             </div>
@@ -377,7 +380,7 @@ export default function ViewDocument() {
                       <div className="flex items-start">
                         <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
                           <Image
-                            src={comment.avatar}
+                            src={'/avatar1.png'} 
                             alt={comment.author}
                             width={40}
                             height={40}

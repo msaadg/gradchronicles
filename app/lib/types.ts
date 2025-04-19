@@ -52,8 +52,6 @@ export interface Document {
   fileUrl: string;
 }
 
-// Types for front-end Search page.tsx
-
 export type SearchResultType = {
   id: string;
   title: string;

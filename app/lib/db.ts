@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import * as bcrypt from 'bcryptjs';
-import { CourseRecommendation, ExtractedMetadata, Document, SearchResultType } from '@/app/lib/types';
+import { CourseRecommendation, ExtractedMetadata } from '@/app/lib/types';
 
 const prisma = new PrismaClient().$extends(withAccelerate())
 
@@ -199,19 +199,6 @@ export async function getRecommendedCourses(userId: string, limit: number = 3) {
   return Array.from(courseMap.values()).slice(0, limit);
 }
 
-// Ibad + Maarij functions for Search Functionality
-
-// export async function searchDocument(title:string) 
-// {
-//   return prisma.document.findMany(
-//     {
-//       where:{
-//         title:{contains:title,mode:"insensitive"}
-//       }
-//     }
-//   )
-// }
-
 // New search function
 export async function searchDocuments({
   query = '',
@@ -304,17 +291,17 @@ export async function searchDocuments({
   });
 
   // Calculate average rating and prepare results
-    let results = documents.map((doc: Document) => {
+    let results = documents.map((doc) => {
       const totalRatings = doc.ratings.length;
       const averageRating =
         totalRatings > 0
-          ? doc.ratings.reduce((sum: number, r: Rating) => sum + r.value, 0) / totalRatings
+          ? doc.ratings.reduce((sum, r) => sum + r.value, 0) / totalRatings
           : 0;
 
       return {
         id: doc.id,
         title: doc.title,
-        course: doc.course.name,
+        course: doc.course,
         rating: averageRating,
         totalRatings,
         downloads: doc.downloadCount,
@@ -326,7 +313,7 @@ export async function searchDocuments({
 
   // Sort by average rating if sortBy is 'rating'
   if (sortBy === 'rating') {
-    results = results.sort((a: SearchResultType, b: SearchResultType) => b.rating - a.rating); // Descending order
+    results = results.sort((a, b) => b.rating - a.rating); // Descending order
   }
 
   // Get total count for pagination

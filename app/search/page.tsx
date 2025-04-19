@@ -76,11 +76,31 @@ const SearchPage = () => {
     setPage(1); // Reset to first page on new search
   };
 
+  // clear filters function to reset all filters and search query
+  const clearFilters = () => {
+    setQuery('');
+    setCourseId('');
+    setDocType('');
+    setMinRating('');
+    setSortBy('newest');
+    setPage(1);
+  };
+
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setPage(newPage);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  // format upload date function to format the date string to "19-April-2025"
+  const formatUploadDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    }).format(date); // e.g., 19-April-2025
   };
 
   return (
@@ -171,6 +191,16 @@ const SearchPage = () => {
                   </select>
                 </div>
               </div>
+              
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={clearFilters}
+                  className="border px-6 py-2 rounded-full font-medium hover:bg-[#f3e8ff] transition-colors"
+                  style={{ borderColor: '#6a0dad', color: '#6a0dad' }}
+                >
+                  Clear All Filters
+                </button>
+              </div>
             </div>
 
             {/* Search Results */}
@@ -210,8 +240,9 @@ const SearchPage = () => {
                     <p className="text-sm text-gray-600">
                       <span className="font-medium">Downloads:</span> {result.downloads}
                     </p>
+                    
                     <p className="text-sm text-gray-600">
-                      <span className="font-medium">Uploaded:</span> {result.uploadDate}
+                      <span className="font-medium">Uploaded:</span> {formatUploadDate(result.uploadDate)}
                     </p>
                   </div>
                 ))}

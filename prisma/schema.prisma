@@ -30,16 +30,15 @@ model User {
   ratings         Rating[]
   notifications   Notification[]
   downloads       Download[]    
-  views           DocumentView[]
   logs            Log[]         // Admin moderation logs
 }
 
 model Course {
-  id          Int         @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String      @unique
   description String?
   createdAt   DateTime    @default(now())
-  slug        String      @unique
+  slug        String @unique
   documents   Document[]
 }
 
@@ -74,20 +73,8 @@ model Document {
   downloads         Download[]
   notifications     Notification[]
   logs              Log[]           // Logs related to this document
-  views             DocumentView[]
   viewCount         Int             @default(0)
   downloadCount     Int             @default(0)
-  thumbnailBase64   String?
-}
-
-model DocumentView {
-  id          String    @id @default(uuid())
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  documentId  String
-  document    Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  viewedAt    DateTime  @default(now())
-  @@index([userId, viewedAt])
 }
 
 model Comment {

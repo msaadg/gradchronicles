@@ -111,14 +111,6 @@ export async function POST(req: NextRequest) {
     const uploadedFile = await upload.complete;
     const fileUrl = await uploadedFile.link();
 
-    let thumbnailBase64 = formData.get('thumbnailBase64')?.toString() || null;
-    if (thumbnailBase64) {
-      if (!thumbnailBase64.startsWith('data:image/')) {
-        console.warn('Invalid thumbnailBase64 format:', thumbnailBase64);
-        thumbnailBase64 = null;
-      }
-    }
-
     const document = await createDocument({
       title,
       courseId,
@@ -129,7 +121,6 @@ export async function POST(req: NextRequest) {
       tags,
       authorId: userId,
       metadata: extractedMetadata,
-      thumbnailBase64,
     });
 
     return NextResponse.json({

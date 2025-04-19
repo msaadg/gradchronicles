@@ -1,22 +1,16 @@
-// upload/page.tsx
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { FileUp } from 'lucide-react';
 import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
 import { toast } from 'sonner';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
 
 const Upload = () => {
-  const router = useRouter();
-  const [pdfjs, setPdfjs] = useState<typeof import('pdfjs-dist') | null>(null);
   const [isUploaded, setIsUploaded] = useState(false);
   const [documentType, setDocumentType] = useState("");
   const [uploadComplete, setUploadComplete] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadedDocumentId, setUploadedDocumentId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [title, setTitle] = useState('');
@@ -25,61 +19,11 @@ const Upload = () => {
   const [tags, setTags] = useState('');
   const [description, setDescription] = useState('');
   
-  // Load pdfjs-dist dynamically on the client-side
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      import('pdfjs-dist').then((module) => {
-        setPdfjs(module);
-        module.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
-      });
-    }
-  }, []);
-
   const handleDocumentTypeChange = (type: string) => {
     setDocumentType(type);
   };
-  const generateThumbnail = async (file: File) => {
-    if (typeof window === 'undefined' || !pdfjs) {
-      console.warn('generateThumbnail called on server-side or pdfjs not loaded, aborting.');
-      return null;
-    }
 
-    try {
-      const url = URL.createObjectURL(file);
-      const pdf = await pdfjs.getDocument(url).promise;
-      const page = await pdf.getPage(1);
-      const viewport = page.getViewport({ scale: 1.0 });
-      const maxWidth = 300;
-      const scale = Math.min(maxWidth / viewport.width, 1);
-      const scaledViewport = page.getViewport({ scale });
-      const canvas = document.createElement('canvas');
-      canvas.width = scaledViewport.width;
-      canvas.height = scaledViewport.height;
-      const context = canvas.getContext('2d');
-      if (!context) throw new Error('Failed to get canvas context');
-      await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              resolve(blob);
-            } else {
-              reject(new Error('Failed to create blob from canvas'));
-            }
-          },
-          'image/jpeg', 
-          0.7
-        );
-      });
-      URL.revokeObjectURL(url);
-      return blob;
-    } catch (error) {
-      console.error('Thumbnail generation failed:', error);
-      return null;
-    }
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 100 * 1024 * 1024) { // 100MB in bytes
@@ -113,18 +57,6 @@ const Upload = () => {
     formData.append('tags', tags);
     formData.append('description', description);
 
-    // Generate thumbnail and convert to base64 if PDF
-    if (file.type === 'application/pdf') {
-      const thumbnailBlob = await generateThumbnail(file);
-      if (thumbnailBlob) {
-        const thumbnailBuffer = await thumbnailBlob.arrayBuffer();
-        const thumbnailBase64 = `data:image/jpeg;base64,${Buffer.from(thumbnailBuffer).toString('base64')}`;
-        formData.append('thumbnailBase64', thumbnailBase64);
-      } else {
-        toast.warning('Failed to generate thumbnail for the PDF. The document will be uploaded without a thumbnail.');
-      }
-    }
-
     // Start the simulated progress at 1%
     setUploadProgress(1);
 
@@ -134,19 +66,17 @@ const Upload = () => {
     }, 300);
 
     try {
-      const response = await axios.post('/api/documents/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      const response = await fetch('/api/documents/upload', {
+        method: 'POST',
+        body: formData,
       });
       clearInterval(simulationInterval);
-      const data = await response.data;
-      if (!response.status.toString().startsWith('2')) {
+      const data = await response.json();
+      if (!response.ok) {
         throw new Error(data.message || 'Upload failed');
       }
       // On successful response, update progress to 100%
       setUploadProgress(100);
-      setUploadedDocumentId(data.documentId);
       setTimeout(() => {
         setUploadComplete(true);
         setIsUploaded(false);
@@ -189,11 +119,7 @@ const Upload = () => {
   };
 
   const handleViewFileInternal = () => {
-    if (uploadedDocumentId) {
-      router.push(`/document/${uploadedDocumentId}`);
-    } else {
-      toast.error('Document ID not found. Please upload a document first.');
-    }
+    // TODO
   }
 
   useEffect(() => {
@@ -453,7 +379,6 @@ const Upload = () => {
                           setUploadComplete(false);
                           setUploadProgress(0);
                           setSelectedFile(null);
-                          setUploadedDocumentId(null);
                           if (fileInputRef.current) fileInputRef.current.value = '';
                           window.scrollTo({ top: 0, behavior: 'smooth' });
                         }}

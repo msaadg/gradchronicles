@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { CourseType, SearchResultType } from '@/app/lib/types';
 import axios, { AxiosResponse } from 'axios';
 import { useDebounce } from 'use-debounce';
+import Image from 'next/image';
 
 const SearchPage = () => {
 
@@ -52,6 +53,7 @@ const SearchPage = () => {
           pageSize: pageSize.toString(),
         });
 
+        // TODO: Currenly new Search from second page does not work if new search results are only in first page
         const res: AxiosResponse = await axios.get(`/api/documents/search?${params}`);
 
         if (!res.data || !res.data.results) {
@@ -111,7 +113,7 @@ const SearchPage = () => {
         <div className="page-container">
           <h1 className="text-3xl font-bold mb-8 text-center">Search Study Materials</h1>
           
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-full mx-auto">
             {/* Search Bar */}
             <form onSubmit={handleSearch} className="mb-8">
               <div className="relative">
@@ -205,36 +207,76 @@ const SearchPage = () => {
 
             {/* Search Results */}
             {loading ? (
-              <div className="text-center py-10">
-                <p className="text-xl text-gray-600">Loading...</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {[...Array(3)].map((_, index) => (
+                  <div
+                    key={index}
+                    className="bg-white rounded-xl shadow-sm p-6 h-[400px] animate-pulse"
+                  >
+                    {/* Image Placeholder */}
+                    <div className="h-48 bg-gray-200 rounded-t-xl" />
+                    
+                    {/* Content Placeholders */}
+                    <div className="my-4 space-y-3">
+                      {/* Title Placeholder */}
+                      <div className="h-5 bg-gray-200 rounded w-1/4" />
+                      {/* Course Name Placeholder */}
+                      <div className="h-4 bg-gray-200 rounded w-3/4" />
+                    </div>
+                    
+                    {/* Rating Placeholder */}
+                    <div className="flex items-center mb-4">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className="h-4 w-4 bg-gray-200 rounded-full" />
+                      ))}
+                      <div className="h-4 bg-gray-200 rounded w-4 ml-3" />
+                    </div>
+                    
+                    {/* Downloads Placeholder */}
+                    <div className="h-4 bg-gray-200 rounded w-2/5 mb-2" />
+                    
+                    {/* Upload Date Placeholder */}
+                    <div className="h-4 bg-gray-200 rounded w-2/3" />
+                  </div>
+                ))}
               </div>
             ) : searchResults.length === 0 ? (
               <div className="text-center py-10">
-                <p className="text-xl text-gray-600">No results found</p>
+                <p className="text-5xl font-bold text-brand-purple/70">No results found</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {searchResults.map((result) => (
                   <div
                     key={result.id}
                     className="bg-white rounded-xl shadow-sm p-6 cursor-pointer hover:shadow-md transition-shadow"
                     onClick={() => router.push(`/document/${result.id}`)}
                   >
-                    <div className="mb-4">
+                    <div className="h-48 overflow-hidden">
+                      <Image
+                        src={result.thumbnailBase64 || '/default-thumbnail.png'}
+                        alt={result.title}
+                        width={400}
+                        height={200}
+                        className="w-full h-full object-cover object-top"
+                      />
+                    </div>
+                    <div className="my-4">
                       <h3 className="text-lg font-semibold text-gray-800 truncate">{result.title}</h3>
-                      <p className="text-sm text-gray-600">{result.course}</p>
+                      <p className="text-sm text-gray-600">{result.course.name}</p>
                     </div>
                     <div className="flex items-center mb-2">
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
-                          size={14}
+                          size={16}
                           fill={i < Math.floor(result.rating) ? '#FBBF24' : 'none'}
                           color={i < Math.floor(result.rating) ? '#FBBF24' : '#CBD5E1'}
+                          className={`${i < Math.floor(result.rating) ? "text-yellow-400" : "text-gray-300"}`}
                         />
                       ))}
                       <span className="text-sm text-gray-600 ml-2">
-                        {result.rating.toFixed(1)} ({result.totalRatings})
+                        {result.rating} ({result.totalRatings})
                       </span>
                     </div>
                     <p className="text-sm text-gray-600">

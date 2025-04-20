@@ -42,25 +42,15 @@ export type CourseRecommendation = {
   totalRating: number
 }
 
-export interface Document {
-  id: string;
-  title: string;
-  course: string;
-  ratings: number;
-  downloadCount: number;
-  uploadDate: Date;
-  fileUrl: string;
-}
-
 export type SearchResultType = {
   id: string;
   title: string;
-  course: string;
+  course: { name: string };
   rating: number;
   totalRatings: number;
   downloads: number;
   uploadDate: string;
-  imageUrl: string;
+  thumbnailBase64?: string | null;
 };
 
 export type CourseType = {

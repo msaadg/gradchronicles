@@ -250,7 +250,7 @@ const Upload = () => {
               </div>
 
               {isUploaded && selectedFile && (
-                <div className="mt-6 flex items-center justify-between bg-[#e8ccf4] rounded-xl p-4 shadow-sm">
+                <div className="mt-6 md:flex items-center justify-between bg-[#e8ccf4] rounded-xl p-4 shadow-sm">
                   <div className="flex items-center">
                     <div className="w-10 h-10 border border-[#6a0dad] rounded-full flex items-center justify-center text-[#6a0dad] font-semibold text-xs mr-4">
                       File
@@ -264,7 +264,7 @@ const Upload = () => {
                       </p>
                     </div>
                   </div>
-                  <div className="flex gap-4 text-sm">
+                  <div className="flex justify-end md:flex gap-4 text-sm">
                     <button
                       onClick={handleViewFile}
                       className="border px-5 py-2 rounded-full font-medium hover:bg-[#f3e8ff] transition-colors"
@@ -367,7 +367,8 @@ const Upload = () => {
                         <div className="w-2 h-2 rounded-full bg-brand-purple"></div>
                       )}
                     </div>
-                    <span>Other Resources</span>
+                    <span className='hidden md:flex'>Other Resources</span>
+                    <span className='md:hidden'>Other</span>
                   </div>
                 </div>
               </div>

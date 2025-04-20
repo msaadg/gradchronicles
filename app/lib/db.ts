@@ -264,7 +264,7 @@ export async function searchDocuments({
     case 'views':
       orderBy.viewCount = 'desc';
       break;
-      case 'rating':
+    case 'rating':
       // Temporarily fallback to uploadDate; we'll sort by average rating later
       orderBy.uploadDate = 'desc';
       break;
@@ -306,7 +306,7 @@ export async function searchDocuments({
         totalRatings,
         downloads: doc.downloadCount,
         uploadDate: doc.uploadDate.toISOString().split('T')[0],
-        imageUrl: doc.fileUrl, // Placeholder; adjust if thumbnails are available
+        thumbnailBase64: doc.thumbnailBase64 || null,
       };
     }
   );

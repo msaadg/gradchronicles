@@ -2,14 +2,33 @@
 import { NextRequest, NextResponse } from 'next/server'; 
 import { getServerSession } from 'next-auth/next'; 
 import { NEXT_AUTH } from '@/app/lib/auth'; 
-import { getDocumentById,incrementViewCount, incrementDownloadCount, getRelatedDocuments,calculateAverageRating,findUserByEmail} from '@/app/lib/db';
+import { getDocumentById,incrementViewCount, incrementDownloadCount, getRelatedDocuments,calculateAverageRating,findUserByEmail, createComment, deleteComment} from '@/app/lib/db';
+
+// interface CreateCommentInput {
+//   documentId: string;
+//   userId: string;
+//   content: string;
+// }
+
+// interface ReportCommentInput {
+//   commentId: string;
+//   userId: string;
+//   reason: string;
+// }
 
 // Interface for metadata to type the Json field
+// interface ExtractedMetadata {
+//   fileSize?: number;
+//   pageCount?: number;
+//   summary?: string;
+//   [key: string]: any; // Allow other dynamic properties in metadata
+// }
+
 interface ExtractedMetadata {
   fileSize?: number;
   pageCount?: number;
   summary?: string;
-  [key: string]: any; // Allow other dynamic properties in metadata
+  [key: string]: string | number | boolean | null | undefined; // Ensure lowercase 'undefined'
 }
 
 // Response interfaces for type safety
@@ -59,6 +78,8 @@ interface ViewDocumentResponse {
  * @returns JSON response with document details, comments, and related documents
  */
 
+
+//original GET API 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   // Extract documentId from URL params (matches [id] folder)
   const { id: documentId } = params;
@@ -74,7 +95,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   if (!user) {
     return NextResponse.json({ message: 'User not found' }, { status: 404 });
   }
-  const userId = user.id;
+  // const userId = user.id;
 
   try {
     
@@ -141,3 +162,85 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ message: 'Failed to fetch document' }, { status: 500 });
   }
 }
+
+export async function POST(req: NextRequest, { params }: { params: { id: string } }){
+  const { id: documentId } = params;
+  const session = await getServerSession(NEXT_AUTH);
+  
+  if (!session?.user?.email){
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  const user = await findUserByEmail(session.user.email);
+  if (!user) {
+    return NextResponse.json({ message: 'User not found' }, { status: 404 });
+  }
+
+  try{
+    const { content } = await req.json();
+    
+    if (!content) {
+      return NextResponse.json({ message: 'Comment content is required' }, { status: 400 });
+    }
+
+    const newComment = await createComment({
+      documentId,
+      userId: user.id,
+      content
+    });
+
+    return NextResponse.json(newComment, { status: 201 });
+  } catch (error) {
+    console.error('Error creating comment:', error);
+    return NextResponse.json({ message: 'Failed to create comment' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }){
+  console.log('[DELETE] API route hit for documentId:', params.id);
+  const { id: documentId } = params;
+
+  const session = await getServerSession(NEXT_AUTH);
+  if (!session?.user?.email){
+    console.error('[DELETE] Unauthorized: No session or email');
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+  console.log('[DELETE] Session user email:', session.user.email);
+
+  const user=await findUserByEmail(session.user.email);
+  if (!user){
+    console.error('[DELETE] User not found for email:', session.user.email);
+    return NextResponse.json({ message: 'User not found' }, { status: 404 });
+  }
+  console.log('[DELETE] Found user:', user.id);
+
+  try{
+    const { commentId } = await req.json();
+    if (!commentId) {
+      console.error('[DELETE] Missing commentId in request body');
+      return NextResponse.json({ message: 'Comment ID is required' }, { status: 400 });
+    }
+    console.log('[DELETE] CommentId from body:', commentId);
+
+    //validate documentId exists
+    const document = await getDocumentById(documentId);
+    if (!document) {
+      console.error('[DELETE] Document not found:', documentId);
+      return NextResponse.json({ message: 'Document not found' }, { status: 404 });
+    }
+
+    console.log('[DELETE] Deleting comment:', commentId, 'by user:', user.id);
+    await deleteComment(commentId, user.id);
+    console.log('[DELETE] Comment deleted successfully');
+    return NextResponse.json({ message: 'Comment deleted' }, { status: 200 });
+  } catch (error) {
+    console.error('[DELETE] Error deleting comment:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json(
+      { message: 'Failed to delete comment', error: errorMessage },
+      { status: 500 }
+    );
+  }
+}
+
+

@@ -21,7 +21,7 @@ const Home = () => {
   // This is just example data, in a real app you'd fetch this from an API
   const recentlyViewedDocs = [
     {
-      id: '32bf6a8d-8f0f-4cbd-8ac3-453e10dda0d1',
+      id: 'cbb2b0bf-6f66-431a-a06b-d78e480815ba',
       title: 'CS101 Midterm Notes',
       course: 'Computer Science 101',
       rating: 4.5,

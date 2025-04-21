@@ -37,7 +37,7 @@ const Home = () => {
       imageUrl: '/homepage_Image2.png'
     },
     {
-      id: '84a5fbd8-b248-44f8-a97e-140f1b8b2ab8', //docx
+      id: 'cc2432a5-1b65-42b2-a066-22668082a7e8', //docx
       title: 'History202 Project',
       course: 'History 202',
       rating: 4.8,

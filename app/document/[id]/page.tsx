@@ -1410,15 +1410,35 @@ export default function ViewDocument() {
               </div>
 
               <div className="flex justify-end">
-                <a
-                  href={document.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-brand-purple-dark transition-colors"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download {document.originalFileName.slice(document.originalFileName.lastIndexOf('.') + 1).toUpperCase()} · {(document.fileSize / (1024 * 1024)).toFixed(1)}MB
-                </a>
+              <a
+                href={document.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-brand-purple-dark transition-colors"
+                onClick={async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+                  e.preventDefault();
+                  try {
+                    const response = await fetch(`/api/documents/${document.id}`, {
+                      method: 'PATCH',
+                    });
+                    if (!response.ok) {
+                      const data: { message?: string } = await response.json();
+                      throw new Error(data.message ?? 'Failed to increment download count');
+                    }
+
+                    toast.success('File Downloading...');
+                    window.open(document.fileUrl, '_blank', 'noopener,noreferrer');
+                  } catch (err) {
+                    const errorMessage = err instanceof Error ? err.message : 'Failed to increment download count';
+                    console.error('Error incrementing download count:', err);
+                    toast.error(errorMessage);
+                    window.open(document.fileUrl, '_blank', 'noopener,noreferrer');
+                  }
+                }}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download {document.originalFileName.slice(document.originalFileName.lastIndexOf('.') + 1).toUpperCase()} · {(document.fileSize / (1024 * 1024)).toFixed(1)}MB
+              </a>
               </div>
 
               {/* Rating form */}

@@ -531,7 +531,7 @@ export function calculateAverageRating(ratings: { value: number }[]) {
   if (!ratings || ratings.length === 0) return 0;
   const total = ratings.reduce((sum, rating) => sum + rating.value, 0);
   const average = total / ratings.length;
-  return Number(average.toFixed(2));
+  return Number(average.toFixed(1));
 }
 
 export async function createComment({ documentId, userId, content }: CreateCommentInput) {

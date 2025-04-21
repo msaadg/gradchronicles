@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'; 
 import { getServerSession } from 'next-auth/next'; 
 import { NEXT_AUTH } from '@/app/lib/auth'; 
-import { getDocumentById,incrementViewCount, incrementDownloadCount, getRelatedDocuments,calculateAverageRating,findUserByEmail, createComment, deleteComment} from '@/app/lib/db';
+import { getDocumentById, incrementViewCount, incrementDownloadCount, getRelatedDocuments,calculateAverageRating,findUserByEmail, createComment, deleteComment} from '@/app/lib/db';
 
 // interface CreateCommentInput {
 //   documentId: string;
@@ -146,14 +146,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       comments: formattedComments,
       relatedDocuments: relatedDocsWithRatings,
     };
-
-    // Increment the document's view count
-    console.log(`Incrementing view count for document ${documentId}`);
+    // Increment view count
     await incrementViewCount(documentId);
-
-    console.log(`Incrementing download count for document ${documentId}`);
-    await incrementDownloadCount(documentId);
-
     // Return successful response
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
@@ -243,4 +237,28 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   }
 }
 
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  const { id: documentId } = params;
 
+  // Check authentication
+  const session = await getServerSession(NEXT_AUTH);
+  if (!session?.user?.email) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    // Verify document exists
+    const document = await getDocumentById(documentId);
+    if (!document) {
+      return NextResponse.json({ message: 'Document not found' }, { status: 404 });
+    }
+
+    // Increment download count
+    await incrementDownloadCount(documentId);
+
+    return NextResponse.json({ message: 'Download count incremented' }, { status: 200 });
+  } catch (error: any) {
+    console.error('Error incrementing download count:', error.message);
+    return NextResponse.json({ message: 'Failed to increment download count', error: error.message }, { status: 500 });
+  }
+}

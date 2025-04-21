@@ -55,29 +55,3 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     );
   }
 }
-
-// export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-//   const { id: documentId } = params;
-
-//   // Check authentication
-//   const session = await getServerSession(NEXT_AUTH);
-//   if (!session?.user?.email) {
-//     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-//   }
-
-//   try {
-//     // Verify document exists
-//     const document = await getDocumentById(documentId);
-//     if (!document) {
-//       return NextResponse.json({ message: 'Document not found' }, { status: 404 });
-//     }
-
-//     // Increment view count
-//     await incrementViewCount(documentId);
-
-//     return NextResponse.json({ message: 'Download count incremented' }, { status: 200 });
-//   } catch (error: any) {
-//     console.error('Error incrementing download count:', error.message);
-//     return NextResponse.json({ message: 'Failed to increment download count', error: error.message }, { status: 500 });
-//   }
-// }

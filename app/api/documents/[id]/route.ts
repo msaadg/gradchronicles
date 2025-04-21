@@ -4,25 +4,6 @@ import { getServerSession } from 'next-auth/next';
 import { NEXT_AUTH } from '@/app/lib/auth'; 
 import { getDocumentById, incrementViewCount, incrementDownloadCount, getRelatedDocuments,calculateAverageRating,findUserByEmail, createComment, deleteComment} from '@/app/lib/db';
 
-// interface CreateCommentInput {
-//   documentId: string;
-//   userId: string;
-//   content: string;
-// }
-
-// interface ReportCommentInput {
-//   commentId: string;
-//   userId: string;
-//   reason: string;
-// }
-
-// Interface for metadata to type the Json field
-// interface ExtractedMetadata {
-//   fileSize?: number;
-//   pageCount?: number;
-//   summary?: string;
-//   [key: string]: any; // Allow other dynamic properties in metadata
-// }
 
 interface ExtractedMetadata {
   fileSize?: number;
@@ -69,16 +50,6 @@ interface ViewDocumentResponse {
   relatedDocuments: RelatedDocResponse[];
 }
 
-/**
- * GET /api/documents/[id]
- * Fetches document details, comments, and related documents by document ID.
- * Increments view count and requires user authentication.
- * @param req - Next.js request object
- * @param params - Dynamic route params containing the document ID
- * @returns JSON response with document details, comments, and related documents
- */
-
-
 //original GET API 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   // Extract documentId from URL params (matches [id] folder)
@@ -121,7 +92,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     // Format comments to match frontend expectations
     const formattedComments: CommentResponse[] = document.comments.map((comment) => ({
       id: comment.id,
-      author: `${comment.user.name || 'Anonymous'}, ${document.course.name} Student`,
+      author: comment.user.name || 'Anonymous',
       time: comment.createdAt.toISOString(), // TODO: Consider date-fns for "X hours ago" format
       content: comment.content,
       canDelete: comment.userId === user.id, // Compare with user.id from database

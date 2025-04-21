@@ -3,10 +3,6 @@ import { getServerSession } from 'next-auth';
 import { NEXT_AUTH } from '@/app/lib/auth';
 import { findUserByEmail, getDocumentById, saveRating, getRatingsForDocument } from '@/app/lib/db';
 
-// interface RatingRequest {
-//   rating: number;
-// }
-
 export async function POST(req: NextRequest) {
     // Parse request body
     const { id, rating } = await req.json();

@@ -270,13 +270,13 @@ export async function searchDocuments({
   }
 
   // Filter by minimum rating
-  if (minRating) {
-    where.ratings = {
-      some: {
-        value: { gte: minRating },
-      },
-    };
-  }
+  // if (minRating) {
+  //   where.ratings = {
+  //     some: {
+  //       value: { gte: minRating },
+  //     },
+  //   };
+  // }
 
   // Sorting logic
   // const orderBy: any = {};
@@ -311,8 +311,6 @@ export async function searchDocuments({
   const documents = await prisma.document.findMany({
     where,
     orderBy,
-    skip,
-    take,
     include: {
       course: { select: { name: true } },
       ratings: true,
@@ -338,16 +336,20 @@ export async function searchDocuments({
         uploadDate: doc.uploadDate.toISOString().split('T')[0],
         thumbnailBase64: doc.thumbnailBase64 || null,
       };
-    }
-  );
+    })
+    .filter(doc => !minRating || doc.rating >= minRating);
 
+  // Apply pagination after filtering by average rating
+  const total = results.length;
+  results = results.slice(skip, skip + take);
+    
   // Sort by average rating if sortBy is 'rating'
   if (sortBy === 'rating') {
     results = results.sort((a, b) => b.rating - a.rating); // Descending order
   }
 
   // Get total count for pagination
-  const total = await prisma.document.count({ where });
+  // const total = await prisma.document.count({ where });
 
   return {
     results,

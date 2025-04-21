@@ -276,7 +276,7 @@ const SearchPage = () => {
                         />
                       ))}
                       <span className="text-sm text-gray-600 ml-2">
-                        {result.rating} ({result.totalRatings})
+                        {Number.isInteger(result.rating) ? result.rating : result.rating.toFixed(1)} ({result.totalRatings})
                       </span>
                     </div>
                     <p className="text-sm text-gray-600">

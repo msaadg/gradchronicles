@@ -12,7 +12,7 @@ const Logo = () => {
           <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
         </svg>
       </div>
-      <span className="hidden sm:flex">Grad Chronicles</span>
+      <span className="hidden lg:flex">Grad Chronicles</span>
     </Link>
   );
 };

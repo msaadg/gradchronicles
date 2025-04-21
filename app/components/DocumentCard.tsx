@@ -12,6 +12,7 @@ interface DocumentCardProps {
   downloads?: number;
   uploadDate?: string;
   imageBase64?: string | null;
+  imageUrl: string;
   showViewButton?: boolean;
 }
 

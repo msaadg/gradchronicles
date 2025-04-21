@@ -398,10 +398,11 @@ const Upload = () => {
                 ></textarea>
               </div>
               
+              {/* Currently Save as Draft button is off */}
               <div className="flex justify-end space-x-3">
                 <button
-                  className="border px-6 py-2.5 rounded-full font-medium hover:bg-[#f3e8ff] transition-colors"
-                  style={{ borderColor: '#6a0dad', color: '#6a0dad' }}
+                  className="border px-6 py-2.5 rounded-full font-medium transition-colors cursor-not-allowed"      // add this hover:bg-[#f3e8ff] and remove cursor-not-allowed
+                  style={{ borderColor: '#dcdbdc', color: '#dcdbdc' }}      // change to this style={{ borderColor: '#f3e8ff', color: '#f3e8ff' }}
                 >
                   Save as Draft
                 </button>

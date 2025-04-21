@@ -255,7 +255,7 @@ const Upload = () => {
                     <div className="w-10 h-10 border border-[#6a0dad] rounded-full flex items-center justify-center text-[#6a0dad] font-semibold text-xs mr-4">
                       File
                     </div>
-                    <div>
+                    <div className='mb-2'>
                       <p className="text-sm font-medium text-gray-800">
                         {selectedFile.name}
                       </p>

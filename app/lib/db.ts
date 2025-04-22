@@ -3,10 +3,11 @@ import { Prisma } from '@prisma/client';
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import * as bcrypt from 'bcryptjs';
-import { CourseRecommendation, ExtractedMetadata } from '@/app/lib/types';
+import { CourseRecommendation, ExtractedMetadata, CreateCommentInput } from '@/app/lib/types';
 
-const prisma = new PrismaClient().$extends(withAccelerate())
+const prisma = new PrismaClient().$extends(withAccelerate());
 
+// Existing functions (unchanged, included for context)
 export async function createDocument(data: {
   title: string;
   courseId: string;
@@ -58,7 +59,7 @@ export async function createUser(data: {
   email: string;
   password: string;
 }) {
-  const hashedPassword = await bcrypt.hash(data.password, 10); // Hash the password with a salt round of 10
+  const hashedPassword = await bcrypt.hash(data.password, 10);
   return prisma.user.create({
     data: {
       email: data.email,
@@ -68,6 +69,35 @@ export async function createUser(data: {
       joinedDate: new Date(),
     },
   });
+}
+
+export async function deleteComment(commentId: string, userId: string) {
+  console.log('[DB] Deleting comment:', { commentId, userId });
+  const comment = await prisma.comment.findUnique({
+    where: { id: commentId },
+    select: { userId: true },
+  });
+
+  if (!comment) {
+    console.error('[DB] Comment not found:', commentId);
+    throw new Error('Comment not found');
+  }
+
+  if (comment.userId !== userId) {
+    console.error('[DB] Unauthorized: User', userId, 'cannot delete comment', commentId);
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    const deletedComment = await prisma.comment.delete({
+      where: { id: commentId },
+    });
+    console.log('[DB] Comment deleted:', deletedComment.id);
+    return deletedComment;
+  } catch (error) {
+    console.error('[DB] Error deleting comment:', error);
+    throw error instanceof Error ? error : new Error('Failed to delete comment');
+  }
 }
 
 export async function findUserByEmail(email: string) {
@@ -80,10 +110,10 @@ export async function createOAuthUser(email: string, name: string, provider: str
   return await prisma.user.create({
     data: {
       email,
-      name: name || "Unknown",
+      name: name || 'Unknown',
       oauthProvider: provider,
       oauthId: providerId,
-      role: "STUDENT",
+      role: 'STUDENT',
     },
   });
 }
@@ -136,13 +166,27 @@ export async function getRecentlyViewedDocuments(userId: string, limit: number =
 }
 
 export async function recordDocumentView(userId: string, documentId: string) {
-  return prisma.documentView.create({
-    data: {
+  const existingView = await prisma.documentView.findFirst({
+    where: {
       userId,
       documentId,
-      viewedAt: new Date(),
     },
   });
+
+  if (existingView) {
+    return prisma.documentView.update({
+      where: { id: existingView.id },
+      data: { viewedAt: new Date() },
+    });
+  } else {
+    return prisma.documentView.create({
+      data: {
+        userId,
+        documentId,
+        viewedAt: new Date(),
+      },
+    });
+  }
 }
 
 export async function getRecommendedCourses(userId: string, limit: number = 3) {
@@ -240,13 +284,13 @@ export async function searchDocuments({
   }
 
   // Filter by minimum rating
-  if (minRating) {
-    where.ratings = {
-      some: {
-        value: { gte: minRating },
-      },
-    };
-  }
+  // if (minRating) {
+  //   where.ratings = {
+  //     some: {
+  //       value: { gte: minRating },
+  //     },
+  //   };
+  // }
 
   // Sorting logic
   // const orderBy: any = {};
@@ -281,8 +325,6 @@ export async function searchDocuments({
   const documents = await prisma.document.findMany({
     where,
     orderBy,
-    skip,
-    take,
     include: {
       course: { select: { name: true } },
       ratings: true,
@@ -308,16 +350,20 @@ export async function searchDocuments({
         uploadDate: doc.uploadDate.toISOString().split('T')[0],
         thumbnailBase64: doc.thumbnailBase64 || null,
       };
-    }
-  );
+    })
+    .filter(doc => !minRating || doc.rating >= minRating);
 
+  // Apply pagination after filtering by average rating
+  const total = results.length;
+  results = results.slice(skip, skip + take);
+    
   // Sort by average rating if sortBy is 'rating'
   if (sortBy === 'rating') {
     results = results.sort((a, b) => b.rating - a.rating); // Descending order
   }
 
   // Get total count for pagination
-  const total = await prisma.document.count({ where });
+  // const total = await prisma.document.count({ where });
 
   return {
     results,
@@ -328,7 +374,217 @@ export async function searchDocuments({
   };
 }
 
-// Cleanup Prisma connection (optional, if needed elsewhere)
+export async function getDocumentById(documentId: string) {
+  return prisma.document.findUnique({
+    where: { id: documentId },
+    include: {
+      author: { select: { name: true, email: true } },
+      course: { select: { name: true } },
+      comments: {
+        include: {
+          user: { select: { name: true, profilePicture: false } },
+        },
+        orderBy: { createdAt: 'desc' },
+      },
+      ratings: true,
+    },
+  });
+}
+
+export async function incrementViewCount(documentId: string) {
+  try {
+    const updatedDocument = await prisma.document.update({
+      where: { id: documentId },
+      data: { viewCount: { increment: 1 } },
+    });
+    console.log(`View count incremented for document ${documentId}: ${updatedDocument.viewCount}`);
+    return updatedDocument;
+  } catch (error) {
+    console.error(`Failed to increment view count for document ${documentId}:`, error);
+    throw error;
+  }
+}
+
+export async function incrementDownloadCount(documentId: string) {
+  try {
+    const updatedDocument = await prisma.document.update({
+      where: { id: documentId },
+      data: { downloadCount: { increment: 1 } },
+    });
+    console.log(`Download count incremented for document ${documentId}: ${updatedDocument.downloadCount}`);
+    return updatedDocument;
+  } catch (error) {
+    console.error(`Failed to increment download count for document ${documentId}:`, error);
+    throw error;
+  }
+}
+
+export async function getRelatedDocuments(courseId: number, documentId: string) {
+  return prisma.document.findMany({
+    where: {
+      courseId: courseId,
+      id: { not: documentId },
+    },
+    include: {
+      ratings: true,
+      course: { select: { name: true } },
+    },
+    take: 3,
+    orderBy: { uploadDate: 'desc' },
+  });
+}
+
+export function calculateAverageRating(ratings: { value: number }[]) {
+  if (!ratings || ratings.length === 0) return 0;
+  const total = ratings.reduce((sum, rating) => sum + rating.value, 0);
+  const average = total / ratings.length;
+  return Number(average.toFixed(1));
+}
+
+export async function createComment({ documentId, userId, content }: CreateCommentInput) {
+  try {
+    console.log('[DB] Creating comment:', { documentId, userId, content });
+    const document = await prisma.document.findUnique({
+      where: { id: documentId },
+    });
+    if (!document) {
+      console.error('[DB] Document not found:', documentId);
+      throw new Error('Document not found');
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      console.error('[DB] User not found:', userId);
+      throw new Error('User not found');
+    }
+
+    const comment = await prisma.comment.create({
+      data: {
+        content,
+        documentId,
+        userId,
+      },
+      include: {
+        user: { select: { name: true } },
+      },
+    });
+    console.log('[DB] Comment created:', comment);
+    return comment;
+  } catch (error) {
+    console.error('[DB] Error creating comment:', error);
+    throw error instanceof Error ? error : new Error('Failed to create comment');
+  }
+}
+
+export async function getCommentsByDocumentId(documentId: string) {
+  return prisma.comment.findMany({
+    where: { documentId },
+    include: {
+      user: { select: { name: true, id: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+export async function saveRating(data: { documentId: string; userId: string; rating: number }) {
+  console.log('[saveRating] Input:', { userId: data.userId, documentId: data.documentId, rating: data.rating });
+  try {
+    const user = await prisma.user.findUnique({ where: { id: data.userId } });
+    if (!user) {
+      console.error('[saveRating] User not found:', data.userId);
+      throw new Error('User not found');
+    }
+    const document = await prisma.document.findUnique({ where: { id: data.documentId } });
+    if (!document) {
+      console.error('[saveRating] Document not found:', data.documentId);
+      throw new Error('Document not found');
+    }
+
+    const existingRating = await prisma.rating.findFirst({
+      where: {
+        userId: data.userId,
+        documentId: data.documentId,
+      },
+    });
+    console.log('[saveRating] Existing rating:', existingRating);
+
+    if (existingRating) {
+      console.log('[saveRating] Updating rating:', existingRating.id);
+      await prisma.rating.update({
+        where: { id: existingRating.id },
+        data: {
+          value: data.rating,
+          createdAt: new Date(),
+        },
+      });
+    } else {
+      console.log('[saveRating] Creating new rating');
+      await prisma.rating.create({
+        data: {
+          id: crypto.randomUUID(),
+          userId: data.userId,
+          documentId: data.documentId,
+          value: data.rating,
+          createdAt: new Date(),
+        },
+      });
+    }
+    console.log('[saveRating] Rating saved successfully');
+  } catch (error) {
+    console.error('[saveRating] Error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    throw error;
+  }
+}
+
+export async function getRatingsForDocument(documentId: string) {
+  console.log('[getRatingsForDocument] Fetching ratings for document:', documentId);
+  try {
+    const ratings = await prisma.rating.findMany({
+      where: { documentId },
+      select: { value: true },
+    });
+    console.log('[getRatingsForDocument] Found ratings:', ratings.length);
+    return ratings;
+  } catch (error) {
+    console.error('[getRatingsForDocument] Error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    throw error;
+  }
+}
+
+// New function for document preview
+export async function getDocumentForPreview(documentId: string) {
+  try {
+    const document = await prisma.document.findUnique({
+      where: { id: documentId },
+      select: {
+        id: true,
+        title: true,
+        fileUrl: true,
+        fileType: true,
+        originalFileName: true,
+        authorId: true,
+      },
+    });
+    if (!document) {
+      console.error('[DB] Document not found:', documentId);
+      throw new Error('Document not found');
+    }
+    console.log('[DB] Fetched document for preview:', document.id);
+    return document;
+  } catch (error) {
+    console.error('[DB] Error fetching document for preview:', error);
+    throw error instanceof Error ? error : new Error('Failed to fetch document');
+  }
+}
+
 export async function disconnect() {
   await prisma.$disconnect();
 }

@@ -321,7 +321,7 @@ const Upload = () => {
                 <label className="block text-gray-700 font-medium mb-2">
                   Document Type<span className="text-red-500">*</span>
                 </label>
-                <div className="flex space-x-4">
+                <div className="md:flex md:space-x-4">
                   <div 
                     onClick={() => handleDocumentTypeChange('exam')}
                     className={`flex items-center space-x-2 cursor-pointer ${documentType === 'exam' ? 'text-brand-purple' : 'text-gray-700'}`}
@@ -367,8 +367,7 @@ const Upload = () => {
                         <div className="w-2 h-2 rounded-full bg-brand-purple"></div>
                       )}
                     </div>
-                    <span className='hidden md:flex'>Other Resources</span>
-                    <span className='md:hidden'>Other</span>
+                    <span>Other Resources</span>
                   </div>
                 </div>
               </div>
@@ -398,10 +397,11 @@ const Upload = () => {
                 ></textarea>
               </div>
               
+              {/* Currently Save as Draft button is off */}
               <div className="flex justify-end space-x-3">
                 <button
-                  className="border px-6 py-2.5 rounded-full font-medium hover:bg-[#f3e8ff] transition-colors"
-                  style={{ borderColor: '#6a0dad', color: '#6a0dad' }}
+                  className="border px-6 py-2.5 rounded-full font-medium transition-colors cursor-not-allowed"      // add this hover:bg-[#f3e8ff] and remove cursor-not-allowed
+                  style={{ borderColor: '#dcdbdc', color: '#dcdbdc' }}      // change to this style={{ borderColor: '#f3e8ff', color: '#f3e8ff' }}
                 >
                   Save as Draft
                 </button>

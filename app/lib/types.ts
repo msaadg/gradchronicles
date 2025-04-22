@@ -22,6 +22,17 @@ export interface DocumentMetadata {
   isPasswordProtected?: boolean;
 }
 
+
+export interface CreateCommentInput {
+  documentId: string;
+  userId: string;
+  content: string;
+}
+
+export interface ErrorResponse {
+  message?: string;
+}
+
 export type FileType = 'PDF' | 'DOC' | 'DOCX' | 'TXT';
 
 export interface ExtractedMetadata extends DocumentMetadata {

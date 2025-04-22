@@ -4,8 +4,9 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const publicRoutes = ['/', '/login', '/api/signup'];
-  const isPublicRoute = publicRoutes.some((route) => pathname === route || pathname.startsWith(route));
+  const publicRoutes = ['/', '/login', '/forget'];
+  const isPublicRoute = publicRoutes.includes(pathname);
+  const isPublicApi = pathname.startsWith('/api/auth') || pathname.startsWith('/api/signup');
   const isApiRoute = pathname.startsWith('/api/');
   
   // Check for authentication token in cookies
@@ -13,7 +14,7 @@ export function middleware(request: NextRequest) {
     request.cookies.get('next-auth.session-token')?.value ||
     request.cookies.get('__Secure-next-auth.session-token')?.value;
 
-  if (isPublicRoute) {
+  if (isPublicRoute || isPublicApi) {
     return NextResponse.next();
   }
 
@@ -33,6 +34,6 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/((?!$|_next/static|_next/image|favicon.ico|login|signup|features|.*\\.(?:png|jpg|jpeg|gif|svg|ico|css|js)).*)',
-    '/api/((?!auth).*)',
+    '/api/((?!auth|signup).*)',
   ],
 };

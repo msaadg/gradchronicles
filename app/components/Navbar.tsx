@@ -126,7 +126,7 @@ const Navbar = ({ isLoggedIn: propIsLoggedIn = false }: NavbarProps) => {
                       <Image
                       src={session.user.image} 
                       alt="Profile" 
-                      className="h-10 w-10 rounded-full object-cover"
+                      className="h-10 w-10 rounded-md object-cover"
                       width={44}
                       height={44}
                       />

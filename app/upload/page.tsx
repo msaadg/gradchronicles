@@ -24,6 +24,8 @@ const Upload = () => {
   const [courseId, setCourseId] = useState('');
   const [tags, setTags] = useState('');
   const [description, setDescription] = useState('');
+  const [courseSearchQuery, setCourseSearchQuery] = useState('');
+  const [showCourseDropdown, setShowCourseDropdown] = useState(false);
   
   // Load pdfjs-dist dynamically on the client-side
   useEffect(() => {
@@ -210,6 +212,10 @@ const Upload = () => {
     fetchCourses();
   }, []);  
 
+  const filteredCourses = availableCourses.filter(course =>
+    course.name.toLowerCase().includes(courseSearchQuery.toLowerCase())
+  );
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar isLoggedIn={true} />
@@ -303,18 +309,55 @@ const Upload = () => {
                 <label className="block text-gray-700 font-medium mb-2">
                   Course<span className="text-red-500">*</span>
                 </label>
-                <select
-                  value={courseId}
-                  onChange={(e) => setCourseId(e.target.value)}
-                  className="form-input w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple/50"
-                >
-                  <option value="">Select a course</option>
-                  {availableCourses?.map((course) => (
-                    <option key={course.id} value={course.id}>
-                      {course.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search for a course"
+                    value={courseSearchQuery || (courseId ? availableCourses.find(c => c.id === courseId)?.name || '' : '')}
+                    onChange={(e) => {
+                      const query = e.target.value;
+                      setCourseSearchQuery(query);
+                      
+                      // Clear selected course if input is empty
+                      if (!query) {
+                        setCourseId('');
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && filteredCourses.length > 0) {
+                        // Select the first matching course on Enter
+                        setCourseId(filteredCourses[0].id);
+                        setCourseSearchQuery('');
+                        setShowCourseDropdown(false);
+                      } else if (e.key === 'Escape') {
+                        setShowCourseDropdown(false);
+                      }
+                    }}
+                    onFocus={() => setShowCourseDropdown(true)}
+                    className="form-input w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple/50"
+                  />
+                  {showCourseDropdown && courseSearchQuery && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                      {filteredCourses.length > 0 ? (
+                        filteredCourses.map((course) => (
+                          <div
+                            key={course.id}
+                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                            onClick={() => {
+                              setCourseId(course.id);
+                              setCourseSearchQuery('');
+                              setShowCourseDropdown(false);
+                            }}
+                          >
+                            {course.name}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-4 py-2 text-gray-500">No courses found</div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div className="mb-6">

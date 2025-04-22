@@ -24,6 +24,8 @@ const SearchPage = () => {
   const [searchResults, setSearchResults] = useState<SearchResultType[]>([]);
   const [availableCourses, setAvailableCourses] = useState<CourseType[]>([]);
   const [loading, setLoading] = useState(false);
+  const [courseSearchQuery, setCourseSearchQuery] = useState('');
+  const [showCourseDropdown, setShowCourseDropdown] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -105,6 +107,10 @@ const SearchPage = () => {
     }).format(date); // e.g., 19-April-2025
   };
 
+  const filteredCourses = availableCourses.filter(course =>
+    course.name.toLowerCase().includes(courseSearchQuery.toLowerCase())
+  );
+
   return (
     <div className="flex flex-col min-h-screen bg-[#fbf8f8]">
       <Navbar isLoggedIn={true} />
@@ -133,18 +139,55 @@ const SearchPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-gray-700 font-medium mb-2">Course</label>
-                  <select
-                    value={courseId}
-                    onChange={(e) => setCourseId(e.target.value)}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple/50"
-                  >
-                    <option value="">All Courses</option>
-                    {availableCourses.map((course) => (
-                      <option key={course.id} value={course.id}>
-                        {course.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative course-dropdown-container">
+                    <input
+                      type="text"
+                      placeholder="Search for a course"
+                      value={courseSearchQuery || (courseId ? availableCourses.find(c => c.id === courseId)?.name || '' : '')}
+                      onChange={(e) => {
+                        const query = e.target.value;
+                        setCourseSearchQuery(query);
+                        
+                        // Clear selected course if input is empty
+                        if (!query) {
+                          setCourseId('');
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && filteredCourses.length > 0) {
+                          // Select the first matching course on Enter
+                          setCourseId(filteredCourses[0].id);
+                          setCourseSearchQuery('');
+                          setShowCourseDropdown(false);
+                        } else if (e.key === 'Escape') {
+                          setShowCourseDropdown(false);
+                        }
+                      }}
+                      onFocus={() => setShowCourseDropdown(true)}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple/50"
+                    />
+                    {showCourseDropdown && courseSearchQuery && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                        {filteredCourses.length > 0 ? (
+                          filteredCourses.map((course) => (
+                            <div
+                              key={course.id}
+                              className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                              onClick={() => {
+                                setCourseId(course.id);
+                                setCourseSearchQuery('');
+                                setShowCourseDropdown(false);
+                              }}
+                            >
+                              {course.name}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="px-4 py-2 text-gray-500">No courses found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div>

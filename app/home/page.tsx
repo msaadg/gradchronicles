@@ -215,9 +215,11 @@ const Home = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {recommendedDocs.map(doc => (
-                  <div key={doc.id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="font-semibold text-lg">{doc.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{doc.course}</p>
+                  <div key={doc.id} className="flex flex-col justify-between bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                    <div>
+                      <h3 className="font-semibold text-lg">{doc.title}</h3>
+                      <p className="text-sm text-gray-600 mt-1">{doc.course}</p>
+                    </div>
                     <div className="mt-6">
                       <Link
                         href={`/recommended-courses`}

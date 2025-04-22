@@ -55,7 +55,7 @@ const DocumentCard = ({
             ))}
           </div>
           <span className="text-sm text-gray-500 ml-2">
-            {rating} ({totalRating})
+            {Number.isInteger(rating) ? rating : rating.toFixed(1)} ({totalRating})
           </span>
         </div>
         

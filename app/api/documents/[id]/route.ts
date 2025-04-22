@@ -229,8 +229,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     await incrementDownloadCount(documentId);
 
     return NextResponse.json({ message: 'Download count incremented' }, { status: 200 });
-  } catch (error: any) {
-    console.error('Error incrementing download count:', error.message);
-    return NextResponse.json({ message: 'Failed to increment download count', error: error.message }, { status: 500 });
+  } catch (error) {
+    console.error('Error incrementing download count:', error);
+    return NextResponse.json({ message: 'Failed to increment download count', error: error }, { status: 500 });
   }
 }

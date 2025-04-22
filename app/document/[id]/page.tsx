@@ -191,7 +191,7 @@ export default function ViewDocument() {
     return () => {
       if (fileUrl) URL.revokeObjectURL(fileUrl);
     };
-  }, []);
+  }, [fileUrl, id]);
 
   // IntersectionObserver to update pageNumber when scrolling
   useEffect(() => {

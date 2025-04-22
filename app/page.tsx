@@ -19,21 +19,17 @@ export default function Home() {
            style={{ backgroundImage: "url('/landingpage.png')" }}
          >
            <div className="page-container">
-            <div className="max-w-3xl mx-auto text-center animate-enter bg-white/80 p-8 rounded-xl shadow-md">
-              <h1 className="text-4xl font-bold mb-6">Your Hub for Collaborative Learning</h1>
-              <p className="text-xl text-black mb-8">Share notes, ask questions, and ace your courses</p>
+            <div className="max-w-3xl mx-auto text-center animate-enter bg-white/70 p-8 rounded-xl shadow-md">
+              <h1 className="text-4xl font-bold mb-4 pt-3">Your Hub for Collaborative Learning</h1>
+              <p className="text-xl text-black mb-12">Share notes, ask questions, and ace your courses</p>
               
-              <div className="flex flex-wrap justify-center gap-4 mb-12">
+              <div className="flex flex-wrap justify-center gap-7 mb-12">
                 <Link href={{ pathname: "/login", query: { tab: "signup" } }} className="primary-btn">
                   Get Started
                 </Link>
                 <SmoothScrollButton targetId="features" className="secondary-btn">
                   Learn More
                 </SmoothScrollButton>
-              </div>
-              
-              <div className="max-w-xl mx-auto">
-                <SearchBar />
               </div>
             </div>
           </div>

@@ -3,6 +3,7 @@ import { useState } from "react";
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import { Send, Search, FileText, Compass, BookOpen } from "lucide-react";
+import { useRouter } from 'next/navigation';
 
 const MOCK_MESSAGES = [
   {
@@ -25,7 +26,12 @@ const Chatbot = () => {
   const [messages, setMessages] = useState(MOCK_MESSAGES);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-
+  const router = useRouter();
+  
+  const handleViewDoc = () => {
+    router.push('/document/0d81d1ec-63d5-49ed-aba6-2074b35a8f8e');
+  };
+  
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-tr from-white via-[#f5f0ff] to-[#f6f6f7]">
       <Navbar isLoggedIn={true} />
@@ -59,9 +65,11 @@ const Chatbot = () => {
                         <div className="mt-4 text-xs font-semibold text-brand-purple">SHOW SOURCES</div>
                         <div className="text-sm text-black mt-1">{msg.source.title}</div>
                         <div className="text-xs text-black mt-1">{msg.source.description}</div>
-                        <button className="mt-2 flex items-center gap-1 bg-brand-purple text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-brand-purple-dark transition">
-                          <BookOpen className="w-4 h-4" /> View Document
-                        </button>
+                        <button
+                            onClick={handleViewDoc}
+                            className="mt-2 flex items-center gap-1 bg-brand-purple text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-brand-purple-dark transition">
+                            <BookOpen className="w-4 h-4" /> View Document
+                          </button>
                       </div>
                     )}
                   </div>
@@ -114,7 +122,7 @@ const Chatbot = () => {
                   <div className="font-semibold text-base text-black">Find Relevant Documents</div>
                 </div>
                 <div className="text-black text-sm mt-2">
-                  Ask questions, and I’ll find the most relevant documents for you.
+                  Ask questions, and I will find the most relevant documents for you.
                 </div>
               </div>
 

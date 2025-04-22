@@ -160,6 +160,7 @@ const Home = () => {
                     rating={doc.rating || 0}
                     totalRating={doc.totalRating || 0}
                     imageBase64={doc.imageBase64}
+                    imageUrl='/default-thumbnail.png'
                   />
                 ))}
               </div>

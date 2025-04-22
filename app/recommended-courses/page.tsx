@@ -126,7 +126,7 @@ const RecommendedCourses = () => {
                 key={doc.id}
                 className="flex items-start bg-white shadow-sm border border-gray-100 rounded-xl overflow-hidden"
               >
-                <Image src={doc.imageUrl} alt={doc.title} className="w-32 h-32 object-cover object-center rounded-l-xl" />
+                <Image src={doc.imageUrl} alt={doc.title} className="w-32 h-32 object-cover object-center rounded-l-xl" width={128} height={128} />
                 <div className="flex-1 p-4">
                   <h3 className="font-bold text-lg mb-0.5">{doc.title}</h3>
                   <p className="text-sm mb-2 font-medium">Document Type: {doc.type}</p>
@@ -161,7 +161,7 @@ const RecommendedCourses = () => {
 
         {/* No documents state (example) */}
         <div className="mt-16 flex flex-col items-center justify-center">
-          <Image src="/lovable-uploads/e1eebe85-ec9f-40d3-bb3c-fbab3cc3c524.png" alt="No docs" className="w-40 mb-5" />
+          <Image src="/lovable-uploads/e1eebe85-ec9f-40d3-bb3c-fbab3cc3c524.png" alt="No docs" className="w-40 mb-5" width={160} height={160} />
           <div className="mb-2 text-lg font-medium text-gray-700">No documents available for this course yet. Be the first to upload!</div>
           <Button className="primary-btn mt-3">Upload Document</Button>
         </div>

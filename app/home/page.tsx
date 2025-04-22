@@ -220,7 +220,7 @@ const Home = () => {
                     <p className="text-sm text-gray-600 mt-1">{doc.course}</p>
                     <div className="mt-6">
                       <Link
-                        href={`/course/${doc.id}`}
+                        href={`/recommended-courses`}
                         className="block w-full text-center bg-brand-purple text-white py-2 rounded-lg hover:bg-brand-purple-dark transition-colors"
                       >
                         Explore

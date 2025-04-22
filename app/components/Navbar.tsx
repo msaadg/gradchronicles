@@ -5,6 +5,7 @@ import { User, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import Logo from './Logo';
 import { signOut, useSession } from 'next-auth/react'; // Added signOut and useSession
+import Image from 'next/image';
 
 interface NavbarProps {
   isLoggedIn?: boolean; // Keep as optional prop for flexibility
@@ -117,12 +118,22 @@ const Navbar = ({ isLoggedIn: propIsLoggedIn = false }: NavbarProps) => {
               </div>
               <div className="relative">
                 <div className="lg:w-60 flex justify-end">
-                  <button 
+                    <button 
                     onClick={toggleDropdown}
                     className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
-                  >
-                    <User className="h-6 w-6" />
-                  </button>
+                    >
+                    {session?.user?.image ? (
+                      <Image
+                      src={session.user.image} 
+                      alt="Profile" 
+                      className="h-10 w-10 rounded-full object-cover"
+                      width={44}
+                      height={44}
+                      />
+                    ) : (
+                      <User className="h-6 w-6" />
+                    )}
+                    </button>
                 </div>
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 animate-scale-in">

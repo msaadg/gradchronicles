@@ -38,6 +38,8 @@ const Profile = () => {
               src={profile.img}
               className="w-32 h-32 rounded-full border-4 border-brand-purple object-cover shadow mb-4"
               alt="User"
+              width={128}
+              height={128}
             />
             <Button className="w-full py-2 rounded-full">
               Edit Picture

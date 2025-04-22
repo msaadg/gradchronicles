@@ -3,10 +3,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
+import Image from 'next/image';
 import { toast, Toaster } from 'sonner';
 
 const ManageDocuments = () => {
-  const [hasDocuments, setHasDocuments] = useState(true);
+  const [hasDocuments] = useState(true);
   const router = useRouter();
 
   const documents = [
@@ -114,7 +115,7 @@ const ManageDocuments = () => {
     <div className="flex flex-col min-h-screen bg-gradient-to-tr from-white via-[#f5f0ff] to-[#f6f6f7]">
       <Toaster position="top-right" richColors />
       <Navbar isLoggedIn={true} />
-      <main className="flex-grow pt-7 pb-10">
+      <main className="flex-grow bg-[#fbf8f8] pt-7 pb-10">
         <div className="page-container">
           <h1 className="text-3xl font-bold mb-4 text-gray-900">Manage Your Documents</h1>
           <div className="bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden mb-12">
@@ -149,7 +150,7 @@ const ManageDocuments = () => {
                     {!hasDocuments ? (
                       <tr>
                         <td colSpan={6} className="py-14 text-center">
-                          <img
+                          <Image
                             src="/lovable-Uploads/e1eebe85-ec9f-40d3-bb3c-fbab3cc3c524.png"
                             alt="No documents"
                             className="w-32 h-32 mx-auto mb-3"

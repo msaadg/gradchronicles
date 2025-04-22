@@ -4,6 +4,7 @@ import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import { Send, Search, FileText, Compass, BookOpen } from "lucide-react";
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const MOCK_MESSAGES = [
   {
@@ -35,7 +36,7 @@ const Chatbot = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-tr from-white via-[#f5f0ff] to-[#f6f6f7]">
       <Navbar isLoggedIn={true} />
-      <main className="flex-grow flex items-center justify-center page-container pb-0 pt-12 px-6">
+      <main className="bg-[#fbf8f8] flex-grow flex items-center justify-center page-container pb-0 pt-12 px-6">
         <div className="w-full flex flex-col lg:flex-row gap-8">
           {/* Chat Area */}
           <div className="flex-1 bg-white rounded-2xl shadow-card flex flex-col min-h-[560px] overflow-hidden animate-fade-in">
@@ -43,12 +44,16 @@ const Chatbot = () => {
               {messages.map((msg, idx) => (
                 <div key={idx} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"} animate-fade-in gap-3`}>
                   {msg.sender === "bot" && (
-                    <img src="/chatbot.png" className="w-8 h-8 rounded-full mt-2" alt="Bot" />
+                    <Image src="/chatbot.png" className="w-8 h-8 rounded-full mt-2" alt="Bot" 
+                    width={300}
+                    height={300}/>
                   )}
                   <div className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}>
                     <div className="flex items-center gap-2">
                       {msg.sender === "user" && (
-                        <img src="/avatar1.png" className="w-8 h-8 rounded-full order-2" alt="User" />
+                        <Image src="/avatar1.png" className="w-8 h-8 rounded-full order-2" alt="User"
+                        width={300}
+                        height={300} />
                       )}
                       <span className={`font-semibold text-sm ${msg.sender === "bot" ? "text-black" : "text-black"}`}>
                         {msg.sender === "user" ? "You" : "Chatbot"}
@@ -77,7 +82,7 @@ const Chatbot = () => {
               ))}
               {isTyping && (
                 <div className="flex justify-start animate-pulse mt-2 gap-3">
-                  <img src="/lovable-uploads/1b34b279-e8d9-4525-b7b6-54954be60966.png" className="w-8 h-8 rounded-full" alt="Bot" />
+                  <Image src="/lovable-uploads/1b34b279-e8d9-4525-b7b6-54954be60966.png" className="w-8 h-8 rounded-full" alt="Bot" />
                   <div className="bg-gray-200 rounded-xl px-5 py-3 text-brand-purple">Chatbot is typing...</div>
                 </div>
               )}

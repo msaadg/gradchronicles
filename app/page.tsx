@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { MessageSquare, Download, Users } from 'lucide-react';
 import Navbar from '@/app/components/Navbar';
 import Footer from "@/app/components/Footer";
-import SearchBar from '@/app/components/SearchBar';
 import FeatureCard from '@/app/components/FeatureCard';
 import TestimonialCard from '@/app/components/TestimonialCard';
 import SmoothScrollButton from '@/app/components/ui/SmoothScrollButton';
@@ -12,7 +11,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       
-      <main className="flex-grow">
+      <main className="bg-[#fbf8f8]  flex-grow">
         {/* Hero Section */}
         <section 
            className="bg-cover bg-center py-24"
@@ -31,6 +30,7 @@ export default function Home() {
                   Learn More
                 </SmoothScrollButton>
               </div>
+              
             </div>
           </div>
         </section>

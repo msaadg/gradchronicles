@@ -64,7 +64,7 @@ const Home = () => {
     <div className="flex flex-col min-h-screen">
       <Navbar isLoggedIn={true} />
       
-      <main className="bg-[#fbf8f8] flex-grow pb-16">
+      <main className="bg-[#fbf8f8]  flex-grow pb-16">
         <div className="page-container pt-8">
           <div className="bg-gradient-to-r from-purple-100 to-purple-200 rounded-xl shadow-sm p-6 mb-6 sm:p-8 sm:mb-8 transform translate-y-1">
             <div className="flex items-center gap-3 mb-4">
@@ -220,7 +220,7 @@ const Home = () => {
                     <p className="text-sm text-gray-600 mt-1">{doc.course}</p>
                     <div className="mt-6">
                       <Link
-                        href={`/course/${doc.id}`}
+                        href={`/recommended-courses`}
                         className="block w-full text-center bg-brand-purple text-white py-2 rounded-lg hover:bg-brand-purple-dark transition-colors"
                       >
                         Explore

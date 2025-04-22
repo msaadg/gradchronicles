@@ -19,29 +19,29 @@ const mockCourse = {
 
 const documents = [
   {
-    id: "1",
-    title: "CS101 Midterm Notes",
+    id: "0d7f029e-bab2-4cf5-bbd4-398170dad854",
+    title: "CS101 Project Plan",
     type: "Notes",
     rating: 4.5,
-    uploadDate: "2024-02-22",
+    uploadDate: "22 April 2025",
     downloads: 120,
     imageUrl: "/lovable-uploads/a85c30ca-9f77-4e5a-a556-b1c90c458264.png",
   },
   {
-    id: "2",
-    title: "CS101 Final Exam",
+    id: "2090b072-f549-44a0-acc1-d83d449ba7a0",
+    title: "PHIL121 Lacan - Ethics",
     type: "Exam",
     rating: 4.7,
-    uploadDate: "2024-03-15",
+    uploadDate: "22 April 2025",
     downloads: 95,
     imageUrl: "/lovable-uploads/a85c30ca-9f77-4e5a-a556-b1c90c458264.png",
   },
   {
-    id: "3",
-    title: "CS101 Lecture Notes",
+    id: "446ed52d-5175-46f5-9dd3-9f338e5b1fa9",
+    title: "CS/CE 353/374 Software Engineering",
     type: "Notes",
     rating: 4.3,
-    uploadDate: "2024-01-10",
+    uploadDate: "22 April 2025",
     downloads: 80,
     imageUrl: "/lovable-uploads/a85c30ca-9f77-4e5a-a556-b1c90c458264.png",
   },
@@ -51,9 +51,9 @@ const RecommendedCourses = () => {
   const [view, setView] = useState<"grid" | "list">("grid");
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f6f6f7]">
+    <div className="flex flex-col min-h-screen bg-[#fbf8f8]">
       <Navbar isLoggedIn={true} />
-      <main className="flex-grow page-container py-8">
+      <main className="bg-[#fbf8f8] flex-grow page-container py-8">
         <div className="mb-7">
           <h1 className="text-3xl font-bold mb-3">{mockCourse.name}</h1>
           <div className="flex flex-wrap gap-x-8 gap-y-3 text-gray-700 font-semibold text-base">
@@ -126,7 +126,9 @@ const RecommendedCourses = () => {
                 key={doc.id}
                 className="flex items-start bg-white shadow-sm border border-gray-100 rounded-xl overflow-hidden"
               >
-                <Image src={doc.imageUrl} alt={doc.title} className="w-32 h-32 object-cover object-center rounded-l-xl" />
+                <Image src={doc.imageUrl} alt={doc.title} className="w-32 h-32 object-cover object-center rounded-l-xl" 
+                width={300}
+                height={300}/>
                 <div className="flex-1 p-4">
                   <h3 className="font-bold text-lg mb-0.5">{doc.title}</h3>
                   <p className="text-sm mb-2 font-medium">Document Type: {doc.type}</p>
@@ -159,12 +161,6 @@ const RecommendedCourses = () => {
           <Button size="icon" variant="ghost" className="rounded-full font-bold px-4 py-1">Next</Button>
         </div>
 
-        {/* No documents state (example) */}
-        <div className="mt-16 flex flex-col items-center justify-center">
-          <Image src="/lovable-uploads/e1eebe85-ec9f-40d3-bb3c-fbab3cc3c524.png" alt="No docs" className="w-40 mb-5" />
-          <div className="mb-2 text-lg font-medium text-gray-700">No documents available for this course yet. Be the first to upload!</div>
-          <Button className="primary-btn mt-3">Upload Document</Button>
-        </div>
       </main>
       <Footer />
     </div>

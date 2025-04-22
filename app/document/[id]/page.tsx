@@ -1,8 +1,8 @@
 'use client';
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, Fragment } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { Download, ZoomIn, ZoomOut, ArrowLeft, ArrowRight, Star } from 'lucide-react';
+import { Download, ZoomIn, ZoomOut, ArrowLeft, ArrowRight, Star, XCircle } from 'lucide-react';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import Image from 'next/image';
@@ -72,6 +72,8 @@ export default function ViewDocument() {
   const [comment, setComment] = useState('');
   const [fileUrl, setFileUrl] = useState<string | null>(null); // For PDF Blob URL
   const [wordError, setWordError] = useState<string | null>(null); // For DOC/DOCX errors
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
 
   // Preview states
   const [numPages, setNumPages] = useState<number | null>(null); // For PDFs
@@ -86,9 +88,14 @@ export default function ViewDocument() {
   const [isPdf, setIsPdf] = useState<boolean>(false);
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]); // Refs for each PDF page
 
+  const isMounted = useRef(false);
+
   // Fetch document data and content
   useEffect(() => {
     async function fetchDocument() {
+      if (isMounted.current) return;
+      isMounted.current = true;
+
       if (!id || typeof id !== 'string') {
         setError('Invalid document ID');
         setLoading(false);
@@ -191,7 +198,7 @@ export default function ViewDocument() {
     return () => {
       if (fileUrl) URL.revokeObjectURL(fileUrl);
     };
-  }, [fileUrl, id]);
+  }, [id]);
 
   // IntersectionObserver to update pageNumber when scrolling
   useEffect(() => {
@@ -379,22 +386,27 @@ export default function ViewDocument() {
     }
   };
 
+  const openDeleteModal = (commentId: string) => {
+    setCommentToDelete(commentId);
+    setDeleteModalOpen(true);
+  };
+
   // Handle comment deletion
-  const handleDeleteComment = async (commentId: string) => {
-    if (!confirm('Are you sure you want to delete this comment?')) return;
-  
-    console.log('[1] Delete comment triggered for commentId:', commentId, 'documentId:', id);
-  
+  const handleDeleteComment = async () => {
+    if (!commentToDelete) return;
+    
+    console.log('[1] Delete comment triggered for commentId:', commentToDelete, 'documentId:', id);
+
     try {
       console.log('[2] Sending DELETE request to:', `/api/documents/${id}`);
       const res = await fetch(`/api/documents/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ commentId }),
+        body: JSON.stringify({ commentId: commentToDelete }),
       });
-  
+
       console.log('[3] Response status:', res.status, 'ok:', res.ok);
-  
+
       if (!res.ok) {
         let errorData: { message?: string } = {};
         let rawResponse = '';
@@ -409,13 +421,13 @@ export default function ViewDocument() {
         const errorMessage = errorData.message ?? `Failed to delete comment (status: ${res.status})`;
         throw new Error(errorMessage);
       }
-  
+
       console.log('[5] Comment deleted successfully');
       setData((prev) =>
         prev
           ? {
               ...prev,
-              comments: prev.comments.filter((c) => c.id !== commentId),
+              comments: prev.comments.filter((c) => c.id !== commentToDelete),
             }
           : prev
       );
@@ -423,6 +435,9 @@ export default function ViewDocument() {
     } catch (err) {
       console.error('[6] Full error:', err);
       toast.error(err instanceof Error ? err.message : 'Error deleting comment');
+    } finally {
+      setDeleteModalOpen(false);
+      setCommentToDelete(null);
     }
   };
 
@@ -466,7 +481,7 @@ export default function ViewDocument() {
     return (
       <div className="flex flex-col min-h-screen">
         <Navbar isLoggedIn={status === 'authenticated'} />
-        <main className="bg-[#fbf8f8] flex-grow py-10 container mx-auto px-4">
+        <main className="bg-[#fbf8f8] flex-grow py-10 container mx-auto px-4 sm:px-16">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column Skeleton */}
             <div className="lg:col-span-2 space-y-6">
@@ -485,7 +500,7 @@ export default function ViewDocument() {
 
                 {/* Preview Area Skeleton */}
                 <div className="flex justify-center items-center min-h-[400px] border rounded-md p-4 bg-gray-50">
-                  <div className="w-full h-[80vh] flex flex-col items-center justify-center">
+                  <div className="w-full h-[100vh] flex flex-col items-center justify-center">
                     <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
                     <p className="mt-4 text-gray-500">Loading document preview...</p>
                   </div>
@@ -655,7 +670,7 @@ export default function ViewDocument() {
     <div className="flex flex-col min-h-screen">
       <Navbar isLoggedIn={status === 'authenticated'} />
       
-      <main className="bg-[#fbf8f8] flex-grow py-10 container mx-auto px-4">
+      <main className="bg-[#fbf8f8] flex-grow py-10 container mx-auto px-2 sm:px-2 sm:px-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
@@ -686,7 +701,7 @@ export default function ViewDocument() {
                 {isPdf && fileUrl ? (
                   <>
                     {console.log('Rendering PDF preview...', fileUrl)}
-                    <div className="w-full h-[80vh] overflow-y-auto">
+                    <div className="w-full h-[100vh] overflow-y-auto">
                       <Document
                         file={fileUrl}
                         onLoadSuccess={onDocumentLoadSuccess}
@@ -717,7 +732,7 @@ export default function ViewDocument() {
                     <>
                       {console.log('Rendering DOC/DOCX preview, HTML length:', wordContent.length)}
                       <div
-                        className="w-full h-[80vh] overflow-y-auto prose prose-sm max-w-none"
+                        className="w-full h-[100vh] overflow-y-auto prose prose-sm max-w-none"
                         style={{ zoom: scale }}
                         dangerouslySetInnerHTML={{ __html: wordContent }}
                       />
@@ -748,9 +763,9 @@ export default function ViewDocument() {
 
             {/* Document Details */}
             <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <div className="flex items-center justify-between mb-4">
+              <div className="sm:flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold">{document.title}</h1>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 pt-2">
                   {/* Star ratings */}
                   {[...Array(5)].map((_, i) => (
                     <Star
@@ -761,13 +776,6 @@ export default function ViewDocument() {
                       className={`${i < Math.floor(document.averageRating) ? "text-yellow-400" : "text-gray-300"}`}
                     />
                   ))}
-                  {/* Rate document link */}
-                  <span
-                    className="text-sm text-purple-600 cursor-pointer hover:underline"
-                    onClick={() => setShowRatingForm(true)}
-                  >
-                    Rate document
-                  </span>
                 </div>
               </div>
 
@@ -787,6 +795,12 @@ export default function ViewDocument() {
                     </span>
                   ))}
                 </div>
+                <span
+                  className="text-purple-600 cursor-pointer hover:underline"
+                  onClick={() => setShowRatingForm(true)}
+                >
+                  Rate document
+                </span>
               </div>
 
               <div className="flex justify-end">
@@ -844,7 +858,7 @@ export default function ViewDocument() {
                   <div className="flex space-x-2">
                     <button
                       onClick={handleSubmitRating}
-                      className="px-3 py-1.5 bg-purple-600 text-white text-sm rounded-full hover:bg-brand-purple-dark transition-colors"
+                      className="flex items-center bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-brand-purple-dark transition-colors"
                       disabled={submittingRating}
                     >
                       {submittingRating ? 'Submitting...' : 'Submit Rating'}
@@ -921,7 +935,7 @@ export default function ViewDocument() {
                             </button>
                             {comment.canDelete && (
                               <button
-                                onClick={() => handleDeleteComment(comment.id)}
+                                onClick={() => openDeleteModal(comment.id)}
                                 className="text-red-500 hover:underline text-sm"
                               >
                                 Delete
@@ -947,37 +961,39 @@ export default function ViewDocument() {
                   relatedDocuments.map((doc) => (
                     <div
                       key={doc.id}
-                      className="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                      className="sm:flex sm:justify-between items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors"
                     >
-                      <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
-                        <Image
-                          src={doc.thumbnailBase64 || '/default-thumbnail.png'} // Ensure this exists in public/
-                          alt={doc.title}
-                          width={100}
-                          height={100}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-medium">{doc.title}</h3>
-                        <p className="text-sm text-gray-600">{doc.course}</p>
-                        <div className="flex items-center mt-1">
-                          <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                size={14}
-                                fill={i < Math.floor(doc.rating) ? '#FBBF24' : 'none'}
-                                color={i < Math.floor(doc.rating) ? '#FBBF24' : '#CBD5E1'}
-                                className={`${i < Math.floor(doc.rating) ? "text-yellow-400" : "text-gray-300"}`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-xs text-gray-500 ml-1">
-                            {Number.isInteger(doc.rating) ? doc.rating : doc.rating.toFixed(1)} ({doc.totalRating})
-                          </span>
+                      <div className='flex mb-2'>
+                        <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+                          <Image
+                            src={doc.thumbnailBase64 || '/default-thumbnail.png'} // Ensure this exists in public/
+                            alt={doc.title}
+                            width={100}
+                            height={100}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                      </div>
+                        <div className="flex-1">
+                          <h3 className="font-medium">{doc.title}</h3>
+                          <p className="text-sm text-gray-600">{doc.course}</p>
+                          <div className="flex items-center mt-1">
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  size={14}
+                                  fill={i < Math.floor(doc.rating) ? '#FBBF24' : 'none'}
+                                  color={i < Math.floor(doc.rating) ? '#FBBF24' : '#CBD5E1'}
+                                  className={`${i < Math.floor(doc.rating) ? "text-yellow-400" : "text-gray-300"}`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-xs text-gray-500 ml-1">
+                              {Number.isInteger(doc.rating) ? doc.rating : doc.rating.toFixed(1)} ({doc.totalRating})
+                            </span>
+                          </div>
+                        </div>
+                      </div> 
                       <Link
                         href={`/document/${doc.id}`}
                         className="px-3 py-1.5 bg-purple-600 text-white text-sm rounded-full hover:bg-brand-purple-dark transition-colors"
@@ -994,6 +1010,48 @@ export default function ViewDocument() {
       </main>
       
       <Footer />
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6 animate-in fade-in zoom-in duration-300">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Delete Comment</h3>
+              <button 
+                onClick={() => {
+                  setDeleteModalOpen(false);
+                  setCommentToDelete(null);
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XCircle size={20} />
+              </button>
+            </div>
+            
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this comment? This action cannot be undone.
+            </p>
+            
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setDeleteModalOpen(false);
+                  setCommentToDelete(null);
+                }}
+                className="px-4 py-2 text-gray-600 rounded-full hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteComment}
+                className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

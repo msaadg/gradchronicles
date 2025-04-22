@@ -4,6 +4,7 @@ import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import { useState } from "react";
 import { Button } from "@/app/components/ui/button";
+import Image from "next/image";
 
 const Profile = () => {
   const [profile, setProfile] = useState({
@@ -33,7 +34,7 @@ const Profile = () => {
         <div className="bg-white rounded-2xl shadow-card p-10 relative">
           {/* Profile Picture and Edit Button in Top-Left Corner */}
           <div className="absolute top-10 left-10 flex flex-col items-start">
-            <img
+            <Image
               src={profile.img}
               className="w-32 h-32 rounded-full border-4 border-brand-purple object-cover shadow mb-4"
               alt="User"

@@ -1,3 +1,4 @@
+// app/api/documents/ratng/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { NEXT_AUTH } from '@/app/lib/auth';

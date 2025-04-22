@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'; 
 import { getServerSession } from 'next-auth/next'; 
 import { NEXT_AUTH } from '@/app/lib/auth'; 
-import { getDocumentById, incrementViewCount, incrementDownloadCount, getRelatedDocuments,calculateAverageRating,findUserByEmail, createComment, deleteComment} from '@/app/lib/db';
+import { getDocumentById, incrementViewCount, incrementDownloadCount, getRelatedDocuments,calculateAverageRating,findUserByEmail, createComment, deleteComment, recordDocumentView} from '@/app/lib/db';
 
 
 interface ExtractedMetadata {
@@ -51,9 +51,9 @@ interface ViewDocumentResponse {
 }
 
 //original GET API 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Extract documentId from URL params (matches [id] folder)
-  const { id: documentId } = params;
+  const { id: documentId } = await params;
 
   // Check for user session to ensure only authenticated users can view documents
   const session = await getServerSession(NEXT_AUTH);
@@ -86,7 +86,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       title: doc.title,
       course: doc.course.name, // Use course name from Course model
       rating: calculateAverageRating(doc.ratings),
-      totalRating: 5, // Max rating is 5 stars
+      totalRating: doc.ratings.length,
+      thumbnailBase64: doc.thumbnailBase64 || null,
     }));
 
     // Format comments to match frontend expectations
@@ -119,6 +120,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     };
     // Increment view count
     await incrementViewCount(documentId);
+    await recordDocumentView(user.id, documentId);
     // Return successful response
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
@@ -128,8 +130,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }){
-  const { id: documentId } = params;
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id: documentId } = await params;
   const session = await getServerSession(NEXT_AUTH);
   
   if (!session?.user?.email){
@@ -161,9 +163,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }){
-  console.log('[DELETE] API route hit for documentId:', params.id);
-  const { id: documentId } = params;
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id: documentId } = await params;
 
   const session = await getServerSession(NEXT_AUTH);
   if (!session?.user?.email){
@@ -208,8 +209,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id: documentId } = params;
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id: documentId } = await params;
 
   // Check authentication
   const session = await getServerSession(NEXT_AUTH);
@@ -231,5 +232,5 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   } catch (error: any) {
     console.error('Error incrementing download count:', error.message);
     return NextResponse.json({ message: 'Failed to increment download count', error: error.message }, { status: 500 });
-  }
+  }
 }

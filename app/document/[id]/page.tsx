@@ -50,6 +50,7 @@ interface RelatedDocResponse {
   course: string;
   rating: number;
   totalRating: number;
+  thumbnailBase64: string;
 }
 
 interface ViewDocumentResponse {
@@ -190,7 +191,7 @@ export default function ViewDocument() {
     return () => {
       if (fileUrl) URL.revokeObjectURL(fileUrl);
     };
-  }, [id]);
+  }, []);
 
   // IntersectionObserver to update pageNumber when scrolling
   useEffect(() => {
@@ -465,8 +466,124 @@ export default function ViewDocument() {
     return (
       <div className="flex flex-col min-h-screen">
         <Navbar isLoggedIn={status === 'authenticated'} />
-        <main className="flex-grow py-8 container mx-auto px-4">
-          <p>Loading...</p>
+        <main className="bg-[#fbf8f8] flex-grow py-10 container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column Skeleton */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Document Preview Skeleton */}
+              <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex space-x-3">
+                    <div className="p-2 rounded-lg bg-gray-100 animate-pulse h-9 w-9"></div>
+                    <div className="p-2 rounded-lg bg-gray-100 animate-pulse h-9 w-9"></div>
+                  </div>
+                  <div className="flex space-x-3">
+                    <div className="p-2 rounded-lg bg-gray-100 animate-pulse h-9 w-9"></div>
+                    <div className="p-2 rounded-lg bg-gray-100 animate-pulse h-9 w-9"></div>
+                  </div>
+                </div>
+
+                {/* Preview Area Skeleton */}
+                <div className="flex justify-center items-center min-h-[400px] border rounded-md p-4 bg-gray-50">
+                  <div className="w-full h-[80vh] flex flex-col items-center justify-center">
+                    <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="mt-4 text-gray-500">Loading document preview...</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Document Details Skeleton */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-8 w-64 bg-gray-200 rounded-md animate-pulse"></div>
+                  <div className="flex items-center space-x-2">
+                    <div className="flex space-x-1">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className="h-5 w-5 bg-gray-200 rounded-full animate-pulse"></div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-4 space-y-2">
+                  <div className="h-5 w-48 bg-gray-200 rounded-md animate-pulse"></div>
+                  <div className="h-5 w-36 bg-gray-200 rounded-md animate-pulse"></div>
+                  <div className="h-5 w-56 bg-gray-200 rounded-md animate-pulse"></div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="h-6 w-20 bg-gray-200 rounded-full animate-pulse"></div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <div className="h-10 w-40 bg-purple-200 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column Skeleton */}
+            <div className="space-y-6">
+              {/* Comments Section Skeleton */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="h-8 w-32 bg-gray-200 rounded-md animate-pulse mb-4"></div>
+                
+                <div className="mb-6 space-y-2">
+                  <div className="w-full h-20 bg-gray-100 rounded-lg animate-pulse"></div>
+                  <div className="flex justify-end mt-2">
+                    <div className="h-10 w-20 bg-purple-200 rounded-full animate-pulse"></div>
+                  </div>
+                </div>
+                
+                <div className="space-y-5">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="border-b border-gray-100 pb-4">
+                      <div className="flex items-start">
+                        <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse"></div>
+                        <div className="ml-3 flex-1 space-y-2">
+                          <div className="flex justify-between">
+                            <div className="h-5 w-32 bg-gray-200 rounded-md animate-pulse"></div>
+                            <div className="h-5 w-16 bg-gray-200 rounded-md animate-pulse"></div>
+                          </div>
+                          <div className="h-4 w-24 bg-gray-200 rounded-md animate-pulse"></div>
+                          <div className="h-12 w-full bg-gray-200 rounded-md animate-pulse"></div>
+                          <div className="flex space-x-4">
+                            <div className="h-4 w-12 bg-gray-200 rounded-md animate-pulse"></div>
+                            <div className="h-4 w-12 bg-gray-200 rounded-md animate-pulse"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Related Documents Skeleton */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="h-8 w-48 bg-gray-200 rounded-md animate-pulse mb-4"></div>
+                
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="flex items-center space-x-3 p-3 rounded-lg">
+                      <div className="w-16 h-16 bg-gray-200 rounded-lg animate-pulse"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-5 w-48 bg-gray-200 rounded-md animate-pulse"></div>
+                        <div className="h-4 w-24 bg-gray-200 rounded-md animate-pulse"></div>
+                        <div className="flex items-center mt-1">
+                          <div className="flex space-x-1">
+                            {[...Array(5)].map((_, j) => (
+                              <div key={j} className="h-3.5 w-3.5 bg-gray-200 rounded-full animate-pulse"></div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="h-8 w-16 bg-purple-200 rounded-full animate-pulse"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </main>
         <Footer />
       </div>
@@ -496,6 +613,28 @@ export default function ViewDocument() {
       </div>
     );
   }
+
+  // format upload date function to format the date string to "19-April-2025"
+  const formatUploadDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    }).format(date); // e.g., 19-April-2025
+  };
+
+  // formatUploadDate2 to include hour and minute as well
+  const formatUploadDate2 = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date); // e.g., 19-April-2025, 14:30
+  };
 
   const { document, comments, relatedDocuments } = data;
 
@@ -617,8 +756,9 @@ export default function ViewDocument() {
                     <Star
                       key={i}
                       size={20}
-                      fill={i < Math.round(document.averageRating) ? '#FBBF24' : 'none'}
-                      color={i < Math.round(document.averageRating) ? '#FBBF24' : '#CBD5E1'}
+                      fill={i < Math.floor(document.averageRating) ? '#FBBF24' : 'none'}
+                      color={i < Math.floor(document.averageRating) ? '#FBBF24' : '#CBD5E1'}
+                      className={`${i < Math.floor(document.averageRating) ? "text-yellow-400" : "text-gray-300"}`}
                     />
                   ))}
                   {/* Rate document link */}
@@ -635,7 +775,7 @@ export default function ViewDocument() {
                 <p className="text-gray-600">Uploaded by {document.author || 'Unknown Author'}</p>
                 <p className="text-gray-600">Course: {document.course}</p>
                 <p className="text-gray-600">
-                  Uploaded on {new Date(document.uploadDate).toLocaleDateString()}
+                  Uploaded on {formatUploadDate(document.uploadDate)}
                 </p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {document.tags.map((tag) => (
@@ -650,35 +790,39 @@ export default function ViewDocument() {
               </div>
 
               <div className="flex justify-end">
-              <a
-                href={document.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-brand-purple-dark transition-colors"
-                onClick={async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-                  e.preventDefault();
-                  try {
-                    const response = await fetch(`/api/documents/${document.id}`, {
-                      method: 'PATCH',
-                    });
-                    if (!response.ok) {
-                      const data: { message?: string } = await response.json();
-                      throw new Error(data.message ?? 'Failed to increment download count');
+                <button
+                  className="flex items-center bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-brand-purple-dark transition-colors"
+                  onClick={async () => {
+                    try {
+                      // First increment the download count
+                      const countResponse = await fetch(`/api/documents/${document.id}`, {
+                        method: 'PATCH',
+                      });
+                      
+                      if (!countResponse.ok) {
+                        const data: { message?: string } = await countResponse.json().catch(() => ({}));
+                        throw new Error(data.message ?? 'Failed to increment download count');
+                      }
+                      
+                      toast.success('Starting download...');
+                      
+                      // Trigger the download by creating a temporary link
+                      const downloadLink = window.document.createElement('a');
+                      downloadLink.href = `/api/documents/download/${document.id}`;
+                      downloadLink.download = document.originalFileName;
+                      window.document.body.appendChild(downloadLink);
+                      downloadLink.click();
+                      window.document.body.removeChild(downloadLink);
+                    } catch (err) {
+                      const errorMessage = err instanceof Error ? err.message : 'Failed to download file';
+                      console.error('Download error:', err);
+                      toast.error(errorMessage);
                     }
-
-                    toast.success('File Downloading...');
-                    window.open(document.fileUrl, '_blank', 'noopener,noreferrer');
-                  } catch (err) {
-                    const errorMessage = err instanceof Error ? err.message : 'Failed to increment download count';
-                    console.error('Error incrementing download count:', err);
-                    toast.error(errorMessage);
-                    window.open(document.fileUrl, '_blank', 'noopener,noreferrer');
-                  }
-                }}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download {document.originalFileName.slice(document.originalFileName.lastIndexOf('.') + 1).toUpperCase()} · {(document.fileSize / (1024 * 1024)).toFixed(1)}MB
-              </a>
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download {document.originalFileName.slice(document.originalFileName.lastIndexOf('.') + 1).toUpperCase()} · {(document.fileSize / (1024 * 1024)).toFixed(1)}MB
+                </button>
               </div>
 
               {/* Rating form */}
@@ -763,7 +907,7 @@ export default function ViewDocument() {
                             <div>
                               <h4 className="font-medium">{comment.author}</h4>
                               <p className="text-sm text-gray-500">
-                                {new Date(comment.time).toLocaleString()}
+                                {formatUploadDate2(comment.time).toLocaleString()}
                               </p>
                             </div>
                             <button className="text-purple-600 hover:underline text-sm">
@@ -807,7 +951,7 @@ export default function ViewDocument() {
                     >
                       <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
                         <Image
-                          src="/login-image.png" // Ensure this exists in public/
+                          src={doc.thumbnailBase64 || '/default-thumbnail.png'} // Ensure this exists in public/
                           alt={doc.title}
                           width={100}
                           height={100}
@@ -823,13 +967,14 @@ export default function ViewDocument() {
                               <Star
                                 key={i}
                                 size={14}
-                                fill={i < Math.round(doc.rating) ? '#FBBF24' : 'none'}
-                                color={i < Math.round(doc.rating) ? '#FBBF24' : '#CBD5E1'}
+                                fill={i < Math.floor(doc.rating) ? '#FBBF24' : 'none'}
+                                color={i < Math.floor(doc.rating) ? '#FBBF24' : '#CBD5E1'}
+                                className={`${i < Math.floor(doc.rating) ? "text-yellow-400" : "text-gray-300"}`}
                               />
                             ))}
                           </div>
                           <span className="text-xs text-gray-500 ml-1">
-                            {doc.rating}/{doc.totalRating}
+                            {Number.isInteger(doc.rating) ? doc.rating : doc.rating.toFixed(1)} ({doc.totalRating})
                           </span>
                         </div>
                       </div>

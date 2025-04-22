@@ -166,13 +166,27 @@ export async function getRecentlyViewedDocuments(userId: string, limit: number =
 }
 
 export async function recordDocumentView(userId: string, documentId: string) {
-  return prisma.documentView.create({
-    data: {
+  const existingView = await prisma.documentView.findFirst({
+    where: {
       userId,
       documentId,
-      viewedAt: new Date(),
     },
   });
+
+  if (existingView) {
+    return prisma.documentView.update({
+      where: { id: existingView.id },
+      data: { viewedAt: new Date() },
+    });
+  } else {
+    return prisma.documentView.create({
+      data: {
+        userId,
+        documentId,
+        viewedAt: new Date(),
+      },
+    });
+  }
 }
 
 export async function getRecommendedCourses(userId: string, limit: number = 3) {

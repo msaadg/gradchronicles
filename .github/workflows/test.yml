@@ -35,10 +35,10 @@ jobs:
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL || 'http://localhost:3000' }}
           JEST_JUNIT_OUTPUT_DIR: "test-results"
 
-      # Added step to save test results and coverage reports
+      # Updated to v4 of upload-artifact action
       - name: Upload test results
         if: always() # Run even if tests fail
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: |

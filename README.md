@@ -27,7 +27,7 @@ Grad Chronicles aims to foster a collaborative learning environment for students
 ---
 
 ## Features
-- **User Authentication**: Sign up/login/logout with email/password or OAuth (e.g., Google).
+- **User Authentication**: Sign up/login/logout with email/password or OAuth (e.g., Google, GitHub).
 - **Document Management**: Upload, view, download, and delete study materials (PDF, DOCX, TXT).
 - **Search & Filtering**: Keyword-based search with filters (course, document type, upload date, rating).
 - **Comments & Feedback**: Add, reply to, and moderate comments on documents.
@@ -43,7 +43,7 @@ Grad Chronicles aims to foster a collaborative learning environment for students
 - **Frontend**: Next.js, Tailwind CSS
 - **Backend**: Next.js API Routes (TypeScript)
 - **Database**: PostgreSQL (metadata), ChromaDB (embeddings for RAG)
-- **File Storage**: AWS S3 / Google Cloud Storage
+- **File Storage**: MEGA
 - **AI**: Hugging Face models, LangChain (RAG)
 - **Hosting**: Vercel
 - **ORM**: Prisma with Prisma Accelerate
@@ -55,7 +55,7 @@ Grad Chronicles aims to foster a collaborative learning environment for students
 ### Prerequisites
 - Node.js (v16.x or higher)
 - PostgreSQL (local or hosted, e.g., Supabase, Neon)
-- AWS S3 or Google Cloud Storage account (for file storage)
+- MEGA account (for file storage)
 - Vercel account (optional, for deployment)
 - Hugging Face API key (for AI models)
 
@@ -89,15 +89,32 @@ Grad Chronicles aims to foster a collaborative learning environment for students
    ```
 
 ### Environment Variables
-Create a `.env` file in the root directory and add:
+Create a `.env` file in the root directory and add the following:
+
 ```
-DATABASE_URL="postgresql://user:password@host:port/dbname"
-AWS_S3_ACCESS_KEY_ID="your-access-key"
-AWS_S3_SECRET_ACCESS_KEY="your-secret-key"
-AWS_S3_BUCKET_NAME="your-bucket-name"
-HUGGING_FACE_API_KEY="your-hf-api-key"
-NEXTAUTH_URL="http://localhost:3000" # For OAuth
-NEXTAUTH_SECRET="your-secret" # Generate with `openssl rand -base64 32`
+# GitHub OAuth credentials - Required for GitHub authentication
+# Create at https://github.com/settings/applications/new
+GITHUB_CLIENT_ID=""
+GITHUB_CLIENT_SECRET=""
+
+# Google OAuth credentials - Required for Google authentication
+# Create at https://console.cloud.google.com/apis/credentials
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+
+# NextAuth configuration
+# Generate a secure random string for NEXTAUTH_SECRET (e.g., using `openssl rand -base64 32`)
+NEXTAUTH_SECRET=""
+# Base URL of your site (e.g., http://localhost:3000 for local development)
+NEXTAUTH_URL=""
+
+# MEGA storage account credentials - Used for file storage
+MEGA_EMAIL=""
+MEGA_PASSWORD=""
+
+# Database connection string
+# Format: postgresql://USER:PASSWORD@HOST:PORT/DATABASE
+DATABASE_URL=""
 ```
 
 ### Running the Project
@@ -116,18 +133,29 @@ NEXTAUTH_SECRET="your-secret" # Generate with `openssl rand -base64 32`
 
 ## API Endpoints
 Here are some key API endpoints (see full specs in the project documentation):
+
 - **Authentication**:
-  - `POST /api/login` - Register a new user.
-  - `POST /api/login` - Log in a user.
+  - `POST /api/auth/signup` - Register a new user.
+  - `POST /api/auth/[...nextauth]` - Handle OAuth and credentials-based login (e.g., Google, GitHub, email/password).
+
+- **Courses**:
+  - `GET /api/courses` - List all available courses.
+
 - **Document Management**:
-  - `POST /api/documents/upload` - Upload a document.
-  - `GET /api/documents` - List all documents.
-- **Chatbot**:
-  - `POST /api/chatbot/query` - Query the RAG chatbot.
-- **Search**:
-  - `GET /api/documents/search?query=keyword` - Search documents.
-- **Admin**:
-  - `DELETE /api/admin/documents/{documentId}` - Remove a document.
+  - `POST /api/documents/upload` - Upload a new document.
+  - `GET /api/documents/[id]` - Retrieve a specific document by ID.
+  - `GET /api/documents/download/[id]` - Download a document by ID.
+  - `GET /api/documents/preview/[id]` - Preview a document by ID.
+  - `GET /api/documents/rating` - Retrieve ratings for documents.
+  - `POST /api/documents/rating` - Add or update a rating for a document.
+  - `GET /api/documents/search` - Search documents by keyword and filters (e.g., course, docType, sortBy).
+
+- **User-Specific Document Actions**:
+  - `GET /api/recently-viewed` - List recently viewed documents for the authenticated user.
+  - `GET /api/recommended-courses` - List recommended courses for the authenticated user based on activity.
+
+- **User Management**:
+  - `GET /api/user` - Retrieve the authenticated user's profile and session details.
 
 Refer to the project documentation for detailed request/response formats.
 
